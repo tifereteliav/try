@@ -38,11 +38,12 @@
         <!-- כותרת ראשית ופרטי קשר (Hero Section) -->
         <header class="text-center mb-16">
             <!-- תמונת העסק שהועלתה על ידי המשתמש - w-32 h-32 מספק גודל יפה -->
+            <!-- ** זהו הדיב המעגלי שמעל השם ** -->
             <div class="w-32 h-32 mx-auto mb-4 rounded-full flex items-center justify-center border-4 border-purple-500 shadow-lg p-1 bg-white/10 overflow-hidden">
-                <!-- תיקון נתיב הגישה לתמונה והוספת fallback (onerror) -->
+                <!-- נתיב פשוט: /files/logo.png - הנתיב המומלץ במערכת -->
                 <img 
                     src="/files/logo.png" 
-                    alt="לוגו העסק - תפארת אליאב" 
+                    alt="logo.png" 
                     class="w-full h-full object-contain rounded-full"
                     onerror="this.onerror=null; this.src='https://placehold.co/128x128/1E1B4B/D1D5DB?text=AI';"
                 >
