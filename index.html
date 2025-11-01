@@ -46,6 +46,16 @@
             transform: rotate(0deg);
             transition: transform 0.3s ease;
         }
+        
+        /* סגנון מותאם אישית לטקסט TikTok */
+        .tiktok-icon-text {
+            font-size: 0.75rem; /* גודל טקסט קטן */
+            font-weight: 900; /* מודגש במיוחד */
+            line-height: 1;
+            /* אפקט צל המדמה את לוגו טיקטוק (כחול-ציאן ומג'נטה) */
+            text-shadow: -1px -1px 0 #00f2ea, 1px 1px 0 #ff0050;
+            padding: 3px; /* ריווח קטן כדי שיהיה ניתן ללחוץ בקלות */
+        }
     </style>
 </head>
 <body class="min-h-screen antialiased">
@@ -86,21 +96,21 @@
                 </a>
                 
                 <!-- קישור: פייסבוק -->
-                <a href="#" target="_blank" 
+                <a href="https://www.facebook.com/share/14N3dWoMSFQ/" target="_blank" 
                    class="text-indigo-400 hover:text-purple-400 transition-colors p-3 rounded-full hover:bg-white/10 hover:shadow-lg hover:shadow-indigo-500/20" aria-label="Facebook">
                     <i data-lucide="facebook" class="w-6 h-6"></i>
                 </a>
                 
                 <!-- קישור: אינסטגרם -->
-                <a href="#" target="_blank" 
+                <a href="https://www.instagram.com/tiferete?igsh=aWV5N3ZqYm1xNHJv" target="_blank" 
                    class="text-indigo-400 hover:text-purple-400 transition-colors p-3 rounded-full hover:bg-white/10 hover:shadow-lg hover:shadow-indigo-500/20" aria-label="Instagram">
                     <i data-lucide="instagram" class="w-6 h-6"></i>
                 </a>
                 
-                <!-- קישור: טיקטוק -->
-                <a href="#" target="_blank" 
-                   class="text-indigo-400 hover:text-purple-400 transition-colors p-3 rounded-full hover:bg-white/10 hover:shadow-lg hover:shadow-indigo-500/20" aria-label="TikTok">
-                    <i data-lucide="tiktok" class="w-6 h-6"></i>
+                <!-- קישור: טיקטוק (שינוי: טקסט קטן ומעוצב "TikTok") -->
+                <a href="https://www.tiktok.com/@tiferet.e?_r=1&_t=ZS-912pCHYXmmm" target="_blank" 
+                   class="text-indigo-400 hover:text-purple-400 transition-colors p-3 rounded-full hover:bg-white/10 hover:shadow-lg hover:shadow-indigo-500/20 flex items-center justify-center" aria-label="TikTok">
+                    <span class="tiktok-icon-text">TikTok</span>
                 </a>
             </div>
         </header>
