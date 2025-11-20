@@ -6,38 +6,110 @@
     <title>מרכז AI אישי וחדשני</title>
     <!-- טעינת Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- טעינת אייקונים של Lucide (לרשתות חברתיות וקישורים) -->
+    <!-- טעינת אייקונים של Lucide -->
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        /* הגדרת פונט Inter כברירת מחדל */
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #040816; /* רקע כהה מאוד (כחול-שחור) */
-            color: #E0E7FF; /* טקסט בהיר */
-            line-height: 1.75;
-            background-image: radial-gradient(at 0% 0%, #1c0050 0%, transparent 50%), 
-                              radial-gradient(at 100% 100%, #150030 0%, transparent 50%);
+        /* ------------------------------------------------ */
+        /* CSS גלובלי ורקע דינאמי (אפקט ריחוף חדש) */
+        /* ------------------------------------------------ */
+
+        :root {
+            --primary-blue: #6366F1; /* Indigo-500 */
+            --primary-purple: #9333EA; /* Purple-600 */
+            --primary-cyan: #06B6D4; /* Cyan-500 */
+            --dark-bg: #040816;
+            --darker-bg: #01040a;
         }
 
-        /* סגנון כללי לכרטיסים */
+        /* הגדרת אנימציה לתנועה עדינה ובהירה */
+        @keyframes dynamic-float {
+            0% { transform: translate(0, 0) scale(1); opacity: 0.8; }
+            50% { transform: translate(50px, -40px) scale(1.05); opacity: 0.9; }
+            100% { transform: translate(0, 0) scale(1); opacity: 0.8; }
+        }
+
+        @keyframes dynamic-float-reverse {
+            0% { transform: translate(0, 0) scale(1); opacity: 0.7; }
+            50% { transform: translate(-40px, 30px) scale(1.05); opacity: 0.85; }
+            100% { transform: translate(0, 0) scale(1); opacity: 0.7; }
+        }
+
+        /* הגדרת פונט Inter כברירת מחדל ורקע אסתטי */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--dark-bg);
+            color: #E0E7FF;
+            line-height: 1.75;
+            overflow-x: hidden;
+            position: relative;
+            /* הסרת כל האפקטים הקודמים מ-body */
+        }
+        
+        /* שכבת הרקע הדינאמית - מופרדת מהתוכן */
+        .dynamic-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; /* מוודא שהאובייקטים מאחורי התוכן הראשי */
+            overflow: hidden;
+        }
+        
+        /* הוספת כתם אור מרחף (אובייקט 1: בהיר כחול/סגול) */
+        .dynamic-background::before {
+            content: '';
+            position: absolute;
+            top: 10%; 
+            left: 5%;
+            width: 450px;
+            height: 450px;
+            /* צבע בהיר ועדין */
+            background: radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.4) 0%, transparent 60%); 
+            filter: blur(80px); /* טשטוש חזק */
+            pointer-events: none;
+            animation: dynamic-float 45s ease-in-out infinite alternate;
+        }
+
+        /* הוספת כתם אור מרחף (אובייקט 2: בהיר ציאן/טורקיז) */
+        .dynamic-background::after {
+            content: '';
+            position: absolute;
+            bottom: 15%; 
+            right: 10%;
+            width: 550px;
+            height: 550px;
+            /* צבע בהיר ועדין */
+            background: radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.35) 0%, transparent 65%); 
+            filter: blur(100px); 
+            pointer-events: none;
+            animation: dynamic-float-reverse 50s ease-in-out infinite alternate; 
+        }
+        
+        /* ------------------------------------------------ */
+        /* אלמנטים פנימיים וכרטיסים (ללא שינוי, רק העתקה) */
+        /* ------------------------------------------------ */
+        
+        /* סגנון כללי לכרטיסים (הצללה ומעבר) */
         .card {
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
             transform: scale(1);
-            /* צל עדין */
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
-            border: 1px solid transparent; /* שומר מקום לגבול בריחוף */
+            /* שמירה על צל עמוק */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
+            border: 1px solid transparent; 
         }
         .card:hover {
-            transform: translateY(-4px) scale(1.02); /* הרמה קלה ומשיכה */
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.4);
-            border-color: #6366F1; /* צבע הדגשה בריחוף */
+            transform: translateY(-4px) scale(1.02); 
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 8px 10px -6px rgba(0, 0, 0, 0.6);
+            border-color: var(--primary-blue); /* גבול הדגשה כחול-סגול */
         }
 
-        /* סגנון כותרות סעיפים */
+        /* סגנון כותרות סעיפים עם אפקט זוהר */
         .section-title {
-            text-shadow: 0 0 8px rgba(99, 102, 241, 0.5);
+            text-shadow: 0 0 10px rgba(99, 102, 241, 0.7);
         }
-        /* מעבר חלק לאיקון סיבוב */
+        
+        /* סגנון לאייקוני האקורדיון */
         .rotate-180 {
             transform: rotate(180deg);
             transition: transform 0.3s ease;
@@ -49,27 +121,28 @@
         
         /* סגנון מותאם אישית לטקסט TikTok */
         .tiktok-icon-text {
-            font-size: 0.75rem; /* גודל טקסט קטן */
-            font-weight: 900; /* מודגש במיוחד */
+            font-size: 0.75rem;
+            font-weight: 900;
             line-height: 1;
-            /* אפקט צל המדמה את לוגו טיקטוק (כחול-ציאן ומג'נטה) */
-            text-shadow: -1px -1px 0 #00f2ea, 1px 1px 0 #ff0050;
-            padding: 3px; /* ריווח קטן כדי שיהיה ניתן ללחוץ בקלות */
+            text-shadow: -1px -1px 0 #00f2ea, 1px 1px 0 #ff0050; 
+            padding: 3px; 
         }
     </style>
 </head>
 <body class="min-h-screen antialiased">
 
-    <!-- מיכל ראשי ומרוכז -->
-    <div class="max-w-4xl mx-auto px-4 py-12 md:py-20">
+    <!-- אלמנט חדש שמכיל את הרקע הדינאמי המרחף, ללא השפעה על התוכן -->
+    <div class="dynamic-background"></div>
+
+    <!-- מיכל ראשי ומרוכז (התוכן נשאר יציב לחלוטין) -->
+    <div class="max-w-4xl mx-auto px-4 py-12 md:py-20 relative">
 
         <!-- כותרת ראשית ופרטי קשר (Hero Section) -->
         <header class="text-center mb-16">
-            <!-- תמונת העסק שהועלתה על ידי המשתמש - שונה ל-bg-white (לבן אטום) -->
+            <!-- תמונת לוגו -->
             <div class="w-32 h-32 mx-auto mb-4 rounded-full flex items-center justify-center 
-                        border-4 border-cyan-400 shadow-xl p-1 bg-white text-gray-900 overflow-hidden 
-                        hover:border-indigo-400 transition-colors duration-300">
-                <!-- נתיב פשוט: /logo.png - הנתיב המומלץ במערכת -->
+                         border-4 border-cyan-400 shadow-xl p-1 bg-white text-gray-900 overflow-hidden 
+                         hover:border-indigo-400 transition-colors duration-300">
                 <img 
                     src="/logo.png" 
                     alt="תמונת לוגו" 
@@ -78,15 +151,15 @@
                 >
             </div>
             
-            <!-- שם העסק והכיתוב התואם ללוגו (שונה מ-text-6xl ל-text-4xl) -->
+            <!-- שם העסק -->
             <h1 class="text-4xl font-extrabold text-transparent bg-clip-text 
                        bg-gradient-to-r from-indigo-300 to-purple-500 mb-2 section-title">
                 תפארת אליאב
             </h1>
-            <!-- הכיתוב החדש כפי שביקשת -->
+            <!-- כיתוב תפקיד -->
             <p class="text-xl text-indigo-300 mb-6">אחות מומחית בסוכרת | מרצה | מובילת חדשנות בשילוב בינה מלאכותית בעבודת האחות</p>
 
-            <!-- קישורי קשר ורשתות חברתיות מעודכנים -->
+            <!-- קישורי קשר ורשתות חברתיות -->
             <div class="flex justify-center space-x-4 space-x-reverse">
                 
                 <!-- קישור: לינקדאין -->
@@ -107,7 +180,7 @@
                     <i data-lucide="instagram" class="w-6 h-6"></i>
                 </a>
                 
-                <!-- קישור: טיקטוק (שינוי: טקסט קטן ומעוצב "TikTok") -->
+                <!-- קישור: טיקטוק -->
                 <a href="https://www.tiktok.com/@tiferet.e?_r=1&_t=ZS-912pCHYXmmm" target="_blank" 
                    class="text-indigo-400 hover:text-purple-400 transition-colors p-3 rounded-full hover:bg-white/10 hover:shadow-lg hover:shadow-indigo-500/20 flex items-center justify-center" aria-label="TikTok">
                     <span class="tiktok-icon-text">TikTok</span>
@@ -115,66 +188,14 @@
             </div>
         </header>
 
-        <!-- קטע 1: פרויקטים וסימולציות AI (עם אקורדיון) -->
+        <!-- קטע 1: תוכן קליני ולימודי -->
         <section class="mb-16 p-6 rounded-3xl bg-gray-900/40 border border-indigo-700/50 backdrop-blur-md shadow-2xl shadow-indigo-900/20">
             <h2 class="text-3xl font-bold mb-8 pb-3 border-b border-indigo-600 flex items-center section-title">
                 <i data-lucide="sparkles" class="w-7 h-7 ml-3 text-purple-400"></i>
-                פרויקטים וסימולציות AI (אתגרים קליניים)
+                תוכן קליני ולימודי שפותח בעזרת כלי AI
             </h2>
 
-            <!-- 1. קטגוריה: סימולציות ומשחקים -->
-            <div class="mb-6">
-                <div id="simulations_header" onclick="toggleSection('simulations_content', 'simulations_icon')" 
-                     class="flex justify-between items-center cursor-pointer p-3 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-b border-gray-700/50 hover:border-indigo-500 transition-colors duration-200">
-                    <h3 class="text-2xl font-semibold text-indigo-300 flex items-center">
-                        <i data-lucide="gamepad" class="w-6 h-6 ml-3 text-red-300"></i>
-                        סימולציות ומשחקים
-                    </h3>
-                    <i id="simulations_icon" data-lucide="chevron-down" class="w-6 h-6 text-indigo-400 rotate-0"></i>
-                </div>
-                
-                <!-- תוכן קטגוריה: מוסתר כברירת מחדל -->
-                <div id="simulations_content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4 hidden">
-                    
-                    <!-- כרטיס: סימולציית DKA & HHS (טקסט עודכן) -->
-                    <a href="https://dka-hhs-clinical-sim.lovable.app" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-red-500">
-                        <div class="flex items-center mb-3">
-                            <i data-lucide="activity" class="w-6 h-6 ml-3 text-red-400"></i>
-                            <h3 class="text-xl font-semibold text-white">סימולציה קלינית: DKA & HHS</h3>
-                        </div>
-                        <p class="text-sm text-indigo-300">סימולציה אינטראקטיבית לתרגול מקרי HHS ו-DKA.</p>
-                    </a>
-                    
-                    <!-- כרטיס: משחק הצילו את כף הרגל -->
-                    <a href="https://foot-care-champion-game.lovable.app" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-indigo-500">
-                        <div class="flex items-center mb-3">
-                            <i data-lucide="footprints" class="w-6 h-6 ml-3 text-indigo-400"></i>
-                            <h3 class="text-xl font-semibold text-white">משחק: הצילו את כף הרגל</h3>
-                        </div>
-                        <p class="text-sm text-indigo-300">משחק אינטראקטיבי ללימוד טיפול ומניעת פצעי כף רגל סוכרתית.</p>
-                    </a>
-
-                    <!-- כרטיס: אתגר אבחון הסוכרת (קנבה 4) -->
-                    <a href="https://www.canva.com/design/DAGqEw-uB6M/hRGfSFRZcNrP8OF-twRGTg/view?utm_content=DAGqEw-uB6M&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hd2ed3668f0" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-purple-500">
-                        <div class="flex items-center mb-3">
-                            <i data-lucide="pill" class="w-6 h-6 ml-3 text-yellow-400"></i>
-                            <h3 class="text-xl font-semibold text-white">אתגר אבחון הסוכרת</h3>
-                        </div>
-                        <p class="text-sm text-indigo-300">משימה אינטראקטיבית לשיפור מיומנויות אבחון סוכרת.</p>
-                    </a>
-
-                    <!-- כרטיס: אתגר סימני היפוגליקמיה (כותרת ותיאור עודכנו) -->
-                    <a href="https://hypoglycemia3.vercel.app" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-orange-500">
-                        <div class="flex items-center mb-3">
-                            <i data-lucide="droplet" class="w-6 h-6 ml-3 text-orange-400"></i>
-                            <h3 class="text-xl font-semibold text-white">זיהוי סימפטומים של היפוגליקמיה</h3>
-                        </div>
-                        <p class="text-sm text-indigo-300">משחק אינטראקטיבי לזיהוי סימפטומים המתרחשים במצב של היפוגליקמיה.</p>
-                    </a>
-                </div>
-            </div>
-
-            <!-- 2. קטגוריה: אחות מומחית קלינית בסוכרת -->
+            <!-- 1. קטגוריה: אחות מומחית קלינית בסוכרת (הועבר לכאן) -->
             <div class="mb-6">
                 <div id="nurse_expert_header" onclick="toggleSection('nurse_expert_content', 'nurse_expert_icon')" 
                      class="flex justify-between items-center cursor-pointer p-3 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-b border-gray-700/50 hover:border-indigo-500 transition-colors duration-200">
@@ -188,8 +209,17 @@
                 <!-- תוכן קטגוריה: מוסתר כברירת מחדל -->
                 <div id="nurse_expert_content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4 hidden">
                     
-                    <!-- כרטיס: אחות מומחית קלינית בסוכרת (קנבה 1) -->
-                    <a href="https://www.canva.com/design/DAGnTkE6kEI/ASaOY3t-M8XIIU-zgGbg-w/view?utm_content=DAGnTkE6kEI&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h86dfd3e9f0" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-purple-500">
+                    <!-- כרטיס: סרטון פרסום להגברת מודעות לתפקיד האחות המומחית בסוכרת (מועבר לראש הרשימה) -->
+                    <a href="https://www.canva.com/design/DAG3fMojWEo/BpJq-G0B9OxV-93lunvAjQ/watch?utm_content=DAG3fMojWEo&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h65c6fa3487" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-teal-500">
+                        <div class="flex items-center mb-3">
+                            <i data-lucide="megaphone" class="w-6 h-6 ml-3 text-teal-400"></i>
+                            <h3 class="text-xl font-semibold text-white">סרטון פרסום להגברת מודעות לתפקיד האחות המומחית בסוכרת</h3>
+                        </div>
+                        <!-- שורת התיאור הוסרה -->
+                    </a>
+                    
+                    <!-- כרטיס: אחות מומחית קלינית בסוכרת (מצגת) -->
+                    <a href="https://www.canva.com/design/DAGnu0a-n4w/q4WXr0a4QQGeLK9sDnaJYQ/view?utm_content=DAGnu0a-n4w&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h2eead23f1f" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-purple-500">
                         <div class="flex items-center mb-3">
                             <i data-lucide="square-stack" class="w-6 h-6 ml-3 text-green-400"></i>
                             <h3 class="text-xl font-semibold text-white">אחות מומחית קלינית בסוכרת</h3>
@@ -197,7 +227,7 @@
                         <p class="text-sm text-indigo-300">מצגת מולטימדיה על תפקיד האחות המומחית הקלינית בסוכרת.</p>
                     </a>
 
-                    <!-- כרטיס: שיר אחיות מומחיות בסוכרת (קנבה 2) -->
+                    <!-- כרטיס: שיר אחיות מומחיות בסוכרת -->
                     <a href="https://www.canva.com/design/DAGaNsWUQqU/k4gppG-rIPD3eP5Fmu0JkA/watch?utm_content=DAGaNsWUQqU&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h302daa8c24" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-purple-500">
                         <div class="flex items-center mb-3">
                             <i data-lucide="music" class="w-6 h-6 ml-3 text-yellow-400"></i>
@@ -205,25 +235,148 @@
                         </div>
                         <p class="text-sm text-indigo-300">סרטון אודיו-ויזואלי מיוחד המוקדש לאחיות מומחיות בסוכרת.</p>
                     </a>
-
-                    <!-- כרטיס: סרטון פרסום להגברת מודעות לתפקיד האחות המומחית בסוכרת (חדש - הוסר התיאור) -->
-                    <a href="https://www.canva.com/design/DAG3fMojWEo/BpJq-G0B9OxV-93lunvAjQ/watch?utm_content=DAG3fMojWEo&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h65c6fa3487" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-teal-500">
-                        <div class="flex items-center mb-3">
-                            <i data-lucide="megaphone" class="w-6 h-6 ml-3 text-teal-400"></i>
-                            <h3 class="text-xl font-semibold text-white">סרטון פרסום להגברת מודעות לתפקיד האחות המומחית בסוכרת</h3>
-                        </div>
-                        <!-- שורת ה-p הוסרה כבקשתך -->
-                    </a>
                 </div>
             </div>
 
-            <!-- 3. קטגוריה: מצגות לימודיות -->
+            <!-- 2. קטגוריה: סימולציות ומשחקים (עכשיו מכיל אקורדיונים ממוקדים) -->
+            <div class="mb-6">
+                <div id="simulations_header" onclick="toggleSection('simulations_content', 'simulations_icon')" 
+                     class="flex justify-between items-center cursor-pointer p-3 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-b border-gray-700/50 hover:border-indigo-500 transition-colors duration-200">
+                    <h3 class="text-2xl font-semibold text-indigo-300 flex items-center">
+                        <i data-lucide="gamepad" class="w-6 h-6 ml-3 text-red-300"></i>
+                        סימולציות ומשחקים
+                    </h3>
+                    <i id="simulations_icon" data-lucide="chevron-down" class="w-6 h-6 text-indigo-400 rotate-0"></i>
+                </div>
+                
+                <!-- תוכן קטגוריה: מוסתר כברירת מחדל -->
+                <div id="simulations_content" class="pt-4 hidden space-y-6">
+
+                    <!-- קטגוריית משנה 1: DKA & HHS (מצבי חירום בסוכרת) -->
+                    <div class="bg-gray-800/30 p-4 rounded-xl border border-red-700/50 shadow-inner shadow-red-900/10">
+                        <!-- כותרת קטגוריית משנה ניתנת ללחיצה -->
+                        <h4 id="dka_hhs_header" onclick="toggleSection('dka_hhs_content', 'dka_hhs_icon')" 
+                            class="text-xl font-bold text-red-300 mb-4 pb-2 border-b border-red-700 flex items-center justify-between cursor-pointer">
+                            <span class="flex items-center">
+                                <i data-lucide="heart-pulse" class="w-5 h-5 ml-2 text-red-400"></i>
+                                DKA & HHS (מצבי חירום בסוכרת)
+                            </span>
+                            <i id="dka_hhs_icon" data-lucide="chevron-down" class="w-5 h-5 text-red-400 rotate-0"></i>
+                        </h4>
+                        <!-- Internal Grid for DKA/HHS items (2 items) - מוסתר כברירת מחדל -->
+                        <div id="dka_hhs_content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 hidden"> 
+                            
+                            <!-- כרטיס: סרטון פתיחה למשחק מצבי חירום בסוכרת -->
+                            <a href="https://www.canva.com/design/DAG3frbbDmo/FD9Qey8uZdTDg7tYcq7QcA/watch?utm_content=DAG3frbbDmo&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h052350b6f8" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-red-500">
+                                <div class="flex items-center mb-3">
+                                    <i data-lucide="video" class="w-6 h-6 ml-3 text-red-400"></i>
+                                    <h3 class="text-xl font-semibold text-white">סרטון פתיחה למשחק מצבי חירום בסוכרת</h3>
+                                </div>
+                                <p class="text-sm text-indigo-300">סרטון המציג את תחילת משחק ה-DKA & HHS.</p>
+                            </a>
+
+                            <!-- כרטיס: סימולציית DKA & HHS (המשחק עצמו) -->
+                            <a href="https://dka-hhs-clinical-sim.lovable.app" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-red-500">
+                                <div class="flex items-center mb-3">
+                                    <i data-lucide="activity" class="w-6 h-6 ml-3 text-red-400"></i>
+                                    <h3 class="text-xl font-semibold text-white">סימולציה קלינית: DKA & HHS</h3>
+                                </div>
+                                <p class="text-sm text-indigo-300">סימולציה אינטראקטיבית לתרגול מקרי HHS ו-DKA.</p>
+                            </a>
+                        </div>
+                    </div> <!-- סוף קטגוריית משנה: DKA & HHS -->
+                    
+                    <!-- קטגוריית משנה 2: כף רגל סוכרתית -->
+                    <div class="bg-gray-800/30 p-4 rounded-xl border border-blue-700/50 shadow-inner shadow-blue-900/10">
+                        <!-- כותרת קטגוריית משנה ניתנת ללחיצה -->
+                        <h4 id="diabetic_foot_header" onclick="toggleSection('diabetic_foot_content', 'diabetic_foot_icon')" 
+                            class="text-xl font-bold text-blue-300 mb-4 pb-2 border-b border-blue-700 flex items-center justify-between cursor-pointer">
+                            <span class="flex items-center">
+                                <i data-lucide="footprints" class="w-5 h-5 ml-2 text-blue-400"></i>
+                                כף רגל סוכרתית
+                            </span>
+                            <i id="diabetic_foot_icon" data-lucide="chevron-down" class="w-5 h-5 text-blue-400 rotate-0"></i>
+                        </h4>
+                        <!-- Content for Diabetic Foot (Hidden by default) -->
+                        <div id="diabetic_foot_content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 hidden">
+                            
+                            <!-- כרטיס: סרטון פתיחה למשחק כף רגל סוכרתית (מוזז לכאן) -->
+                            <a href="https://www.canva.com/design/DAG3fXL_CrU/8H-jAOqsdb0J3M1f0tGxhQ/watch?utm_content=DAG3fXL_CrU&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hb976a209b2" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-blue-500">
+                                <div class="flex items-center mb-3">
+                                    <i data-lucide="video" class="w-6 h-6 ml-3 text-blue-400"></i>
+                                    <h3 class="text-xl font-semibold text-white">סרטון פתיחה למשחק כף רגל סוכרתית</h3>
+                                </div>
+                                <p class="text-sm text-indigo-300">מבוא ויזואלי למשחק "הצילו את כף הרגל".</p>
+                            </a>
+
+                            <!-- כרטיס: משחק הצילו את כף הרגל (מוזז לכאן) -->
+                            <a href="https://foot-care-champion-game.lovable.app" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-indigo-500">
+                                <div class="flex items-center mb-3">
+                                    <i data-lucide="footprints" class="w-6 h-6 ml-3 text-indigo-400"></i>
+                                    <h3 class="text-xl font-semibold text-white">משחק: הצילו את כף הרגל</h3>
+                                </div>
+                                <p class="text-sm text-indigo-300">משחק אינטראקטיבי ללימוד טיפול ומניעת פצעי כף רגל סוכרתית.</p>
+                            </a>
+                        </div>
+                    </div> <!-- סוף קטגוריית משנה: כף רגל סוכרתית -->
+
+                    <!-- קטגוריית משנה 3: אתגר אבחון הסוכרת (חדש) -->
+                    <div class="bg-gray-800/30 p-4 rounded-xl border border-yellow-700/50 shadow-inner shadow-yellow-900/10">
+                        <!-- כותרת קטגוריית משנה ניתנת ללחיצה -->
+                        <h4 id="diagnosis_challenge_header" onclick="toggleSection('diagnosis_challenge_content', 'diagnosis_challenge_icon')" 
+                            class="text-xl font-bold text-yellow-300 mb-4 pb-2 border-b border-yellow-700 flex items-center justify-between cursor-pointer">
+                            <span class="flex items-center">
+                                <i data-lucide="pill" class="w-5 h-5 ml-2 text-yellow-400"></i>
+                                אתגר אבחון הסוכרת
+                            </span>
+                            <i id="diagnosis_challenge_icon" data-lucide="chevron-down" class="w-5 h-5 text-yellow-400 rotate-0"></i>
+                        </h4>
+                        <!-- Content for Diagnosis Challenge (Hidden by default) -->
+                        <div id="diagnosis_challenge_content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 hidden">
+                            
+                            <!-- כרטיס: סרטון פתיחה לאתגר אבחון הסוכרת (חדש) -->
+                            <a href="https://www.canva.com/design/DAG3frPWn1k/7jzBbSKtRsrkio-NbruU-g/watch?utm_content=DAG3frPWn1k&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h085fde5e59" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-yellow-500">
+                                <div class="flex items-center mb-3">
+                                    <i data-lucide="video" class="w-6 h-6 ml-3 text-yellow-400"></i>
+                                    <h3 class="text-xl font-semibold text-white">סרטון פתיחה לאתגר אבחון הסוכרת</h3>
+                                </div>
+                                <p class="text-sm text-indigo-300">מבוא ויזואלי לאתגר האבחון.</p>
+                            </a>
+
+                            <!-- כרטיס: אתגר אבחון הסוכרת (המשחק עצמו - מוזז לכאן) -->
+                            <a href="https://www.canva.com/design/DAGqEw-uB6M/hRGfSFRZcNrP8OF-twRGTg/view?utm_content=DAGqEw-uB6M&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hd2ed3668f0" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-purple-500">
+                                <div class="flex items-center mb-3">
+                                    <i data-lucide="pill" class="w-6 h-6 ml-3 text-yellow-400"></i>
+                                    <h3 class="text-xl font-semibold text-white">אתגר אבחון הסוכרת</h3>
+                                </div>
+                                <p class="text-sm text-indigo-300">משימה אינטראקטיבית לשיפור מיומנויות אבחון סוכרת.</p>
+                            </a>
+                        </div>
+                    </div> <!-- סוף קטגוריית משנה: אתגר אבחון הסוכרת -->
+
+
+                    <!-- אתגרים שאינם משתייכים לאקורדיון (כעת רק היפוגליקמיה) -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-2">
+                        
+                        <!-- כרטיס: זיהוי סימפטומים של היפוגליקמיה (נשאר) -->
+                        <a href="https://hypoglycemia3.vercel.app" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-orange-500">
+                            <div class="flex items-center mb-3">
+                                <i data-lucide="droplet" class="w-6 h-6 ml-3 text-orange-400"></i>
+                                <h3 class="text-xl font-semibold text-white">זיהוי סימפטומים של היפוגליקמיה</h3>
+                            </div>
+                            <p class="text-sm text-indigo-300">משחק אינטראקטיבי לזיהוי סימפטומים המתרחשים במצב של היפוגליקמיה.</p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 3. קטגוריה: מצגות וידיאו לימודיות (שם שונה) -->
             <div class="mb-6">
                 <div id="presentations_header" onclick="toggleSection('presentations_content', 'presentations_icon')" 
                      class="flex justify-between items-center cursor-pointer p-3 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-b border-gray-700/50 hover:border-indigo-500 transition-colors duration-200">
                     <h3 class="text-2xl font-semibold text-indigo-300 flex items-center">
                         <i data-lucide="presentation" class="w-6 h-6 ml-3 text-blue-300"></i>
-                        מצגות לימודיות
+                        מצגות וידיאו לימודיות
                     </h3>
                     <i id="presentations_icon" data-lucide="chevron-down" class="w-6 h-6 text-indigo-400 rotate-0"></i>
                 </div>
@@ -231,7 +384,7 @@
                 <!-- תוכן קטגוריה: מוסתר כברירת מחדל -->
                 <div id="presentations_content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4 hidden">
                     
-                    <!-- כרטיס: GCP (קנבה 3) -->
+                    <!-- כרטיס: GCP -->
                     <a href="https://www.canva.com/design/DAG3AjfLP50/OyuEa45CDkJwhE8tYqG5qw/watch?utm_content=DAG3AjfLP50&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h290cb7ba06" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-purple-500">
                         <div class="flex items-center mb-3">
                             <i data-lucide="square-stack" class="w-6 h-6 ml-3 text-green-400"></i>
@@ -239,10 +392,28 @@
                         </div>
                         <p class="text-sm text-indigo-300">מצגת הדרכה על עקרונות GCP (Good Clinical Practice).</p>
                     </a>
+
+                    <!-- כרטיס: האם מותר לצום שיש סוכרת? -->
+                    <a href="https://www.canva.com/design/DAG0BWR2IaA/U8OPTYX6k_gHynzR-aNbQA/watch?utm_content=DAG0BWR2IaA&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hbe505eb7e5" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-blue-500">
+                        <div class="flex items-center mb-3">
+                            <i data-lucide="help-circle" class="w-6 h-6 ml-3 text-blue-400"></i>
+                            <h3 class="text-xl font-semibold text-white">האם מותר לצום שיש סוכרת?</h3>
+                        </div>
+                        <p class="text-sm text-indigo-300">סרטון הסבר עם העקרונות החשובים לפני צום יום כיפור למטופל המתמודד עם סוכרת.</p>
+                    </a>
+
+                    <!-- כרטיס חדש: האם סוכרת זה מצב הפיך? -->
+                    <a href="https://www.canva.com/design/DAGxqu2IPPY/WS9hGfXfCdrm778D_DXERA/watch?utm_content=DAGxqu2IPPY&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h44a0c68b09" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-cyan-500">
+                        <div class="flex items-center mb-3">
+                            <i data-lucide="refresh-cw" class="w-6 h-6 ml-3 text-cyan-400"></i>
+                            <h3 class="text-xl font-semibold text-white">האם סוכרת זה מצב הפיך?</h3>
+                        </div>
+                        <!-- ללא תיאור, כבקשתך -->
+                    </a>
                 </div>
             </div>
 
-            <!-- 4. קטגוריה: סרטוני הדרכה (חדש - הועבר קדימה) -->
+            <!-- 4. קטגוריה: סרטוני הדרכה -->
             <div class="mb-6">
                 <div id="videos_header" onclick="toggleSection('videos_content', 'videos_icon')" 
                      class="flex justify-between items-center cursor-pointer p-3 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-b border-gray-700/50 hover:border-indigo-500 transition-colors duration-200">
@@ -264,10 +435,61 @@
                         </div>
                         <p class="text-sm text-indigo-300">מדריך וידאו קצר לאנשים עם סוכרת היוצאים לטיולים ונסיעות.</p>
                     </a>
+
+                    <!-- כרטיס חדש: טיפים לטיול עם סוכרת 2 -->
+                    <a href="https://www.canva.com/design/DAGvE2pLmps/VxwQJsMaaTmlLLJWnd5cRA/watch?utm_content=DAGvE2pLmps&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h19feb76189" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-indigo-500">
+                        <div class="flex items-center mb-3">
+                            <i data-lucide="plane" class="w-6 h-6 ml-3 text-indigo-400"></i>
+                            <h3 class="text-xl font-semibold text-white">טיפים לטיול עם סוכרת 2</h3>
+                        </div>
+                        <p class="text-sm text-indigo-300">בדגש על סוכרת סוג 2</p>
+                    </a>
+                    
+                    <!-- כרטיס: Libre 2 Plus (קשר ל-AI ו-CGM) - הקישור עודכן כאן -->
+                    <a href="https://www.canva.com/design/DAG2YtWcHh8/3xHB4cnVjYb5cwbt1CMi3g/watch?utm_content=DAG2YtWcHh8&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h2f57ae08d7" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-green-500">
+                        <div class="flex items-center mb-3">
+                            <i data-lucide="thermometer" class="w-6 h-6 ml-3 text-green-400"></i>
+                            <h3 class="text-xl font-semibold text-white">Libre 2 Plus</h3>
+                        </div>
+                        <p class="text-sm text-indigo-300">הקשר בין בינה מלאכותית לנתונים הנאספים במכשירי CGM.</p>
+                    </a>
+
+                    <!-- כרטיס: טיפים לקראת חג ראש השנה (עם תיאור) -->
+                    <a href="https://www.canva.com/design/DAGzC6hqYtw/JBfKW2GZR8sTIoeTa7K9qQ/watch?utm_content=DAGzC6hqYtw&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h97c8b9bda5" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-red-300">
+                        <div class="flex items-center mb-3">
+                            <i data-lucide="cake" class="w-6 h-6 ml-3 text-red-400"></i>
+                            <h3 class="text-xl font-semibold text-white">טיפים לקראת חג ראש השנה</h3>
+                        </div>
+                        <p class="text-sm text-indigo-300">למטופלים המתמודדים עם סוכרת.</p>
+                    </a>
                 </div>
             </div>
 
-            <!-- 5. קטגוריה: סדנאות והרצאות (חדש - הועבר אחורה) -->
+            <!-- 5. קטגוריה: סרטוני הדרכה על שימוש בכלי AI (חדש) -->
+            <div class="mb-6">
+                <div id="ai_tutorials_header" onclick="toggleSection('ai_tutorials_content', 'ai_tutorials_icon')" 
+                     class="flex justify-between items-center cursor-pointer p-3 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-b border-gray-700/50 hover:border-indigo-500 transition-colors duration-200">
+                    <h3 class="text-2xl font-semibold text-indigo-300 flex items-center">
+                        <i data-lucide="terminal" class="w-6 h-6 ml-3 text-emerald-300"></i>
+                        סרטוני הדרכה על שימוש בכלי AI
+                    </h3>
+                    <i id="ai_tutorials_icon" data-lucide="chevron-down" class="w-6 h-6 text-indigo-400 rotate-0"></i>
+                </div>
+
+                <!-- תוכן קטגוריה: מוסתר כברירת מחדל, כרגע ללא כרטיסים -->
+                <div id="ai_tutorials_content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4 hidden">
+                    <!-- כרטיס חדש: QuizGPT -->
+                    <a href="https://www.canva.com/design/DAGxM6L6NYs/76-1R-VejrGjK0UcGO0oiw/watch?utm_content=DAGxM6L6NYs&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h942744c527" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-emerald-500">
+                        <div class="flex items-center mb-3">
+                            <i data-lucide="graduation-cap" class="w-6 h-6 ml-3 text-emerald-400"></i>
+                            <h3 class="text-xl font-semibold text-white">QuizGPT</h3>
+                        </div>
+                        <p class="text-sm text-indigo-300">איך להפוך נוהל לחידון אינטראקטיבי?</p>
+                    </a>
+                </div>
+            </div>
+
+            <!-- 6. קטגוריה: סדנאות והרצאות (מספור עודכן) -->
             <div class="mb-6">
                 <div id="workshops_header" onclick="toggleSection('workshops_content', 'workshops_icon')" 
                      class="flex justify-between items-center cursor-pointer p-3 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-b border-gray-700/50 hover:border-indigo-500 transition-colors duration-200">
@@ -281,7 +503,7 @@
                 <!-- תוכן קטגוריה: מוסתר כברירת מחדל -->
                 <div id="workshops_content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4 hidden">
                     
-                    <!-- כרטיס: בינה מלאכותית למדריכות קליניות יצאה לדרך (קנבה 5) -->
+                    <!-- כרטיס: בינה מלאכותית למדריכות קליניות יצאה לדרך -->
                     <a href="https://www.canva.com/design/DAGx_i3-gH4/05X2yi72AbB-6EHBtIzG4w/watch?utm_content=DAGx_i3-gH4&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hdc0d610e8b" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-purple-500">
                         <div class="flex items-center mb-3">
                             <i data-lucide="square-stack" class="w-6 h-6 ml-3 text-green-400"></i>
@@ -289,19 +511,89 @@
                         </div>
                         <p class="text-sm text-indigo-300">חזון וכלים לשילוב AI בהדרכה קלינית לאחיות.</p>
                     </a>
+
+                    <!-- כרטיס: סיום סדנת AI לאחיות מדריכות קליניות -->
+                    <a href="https://www.canva.com/design/DAG3ffyroQo/K1kR_4hA46kkLzHMhZA3pw/watch?utm_content=DAG3ffyroQo&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=haa2c719820" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-pink-500">
+                        <div class="flex items-center mb-3">
+                            <i data-lucide="check-circle" class="w-6 h-6 ml-3 text-pink-400"></i>
+                            <h3 class="text-xl font-semibold text-white">סיום סדנת AI לאחיות מדריכות קליניות</h3>
+                        </div>
+                        <p class="text-sm text-indigo-300">הצגת תוצרי סיום סדנת בינה מלאכותית למדריכות קליניות.</p>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- 7. קטגוריה: כנסים (חדש) -->
+            <div class="mb-6">
+                <div id="conferences_header" onclick="toggleSection('conferences_content', 'conferences_icon')" 
+                     class="flex justify-between items-center cursor-pointer p-3 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-b border-gray-700/50 hover:border-indigo-500 transition-colors duration-200">
+                    <h3 class="text-2xl font-semibold text-indigo-300 flex items-center">
+                        <i data-lucide="users" class="w-6 h-6 ml-3 text-fuchsia-300"></i>
+                        כנסים
+                    </h3>
+                    <i id="conferences_icon" data-lucide="chevron-down" class="w-6 h-6 text-indigo-400 rotate-0"></i>
+                </div>
+
+                <!-- תוכן קטגוריה: מוסתר כברירת מחדל -->
+                <div id="conferences_content" class="pt-4 hidden space-y-4">
+                    
+                    <!-- קטגוריית משנה 1: כנס הסוכרת בירושלים (ניתן ללחיצה) -->
+                    <div class="bg-gray-800/30 p-4 rounded-xl border border-fuchsia-700/50 shadow-inner shadow-fuchsia-900/10">
+                        <h4 id="conf_challenge_header" onclick="toggleSection('conf_challenge_content', 'conf_challenge_icon')" 
+                            class="text-xl font-bold text-fuchsia-300 mb-2 pb-2 border-b border-fuchsia-700 flex items-center justify-between cursor-pointer">
+                            <span class="flex items-center">
+                                <i data-lucide="calendar-check" class="w-5 h-5 ml-2 text-fuchsia-400"></i>
+                                סוכרת במציאות משתנה, אתגרים פריצות דרך וחדשנות
+                            </span>
+                            <i id="conf_challenge_icon" data-lucide="chevron-down" class="w-5 h-5 text-fuchsia-400 rotate-0"></i>
+                        </h4>
+                        <!-- כיתוב הוסף כאן -->
+                        <p class="text-sm text-fuchsia-400 mb-4">כנס הסוכרת לצוותים רפואיים בירושלים 10.11.25</p>
+                        
+                        <!-- Internal Grid for Conference challenge items (Hidden by default) -->
+                        <div id="conf_challenge_content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 hidden">
+                            <!-- כרטיס 1: אתר האתגר האינטראקטיבי של הכנס -->
+                            <a href="https://diabetes-challenge.vercel.app" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-fuchsia-500">
+                                <div class="flex items-center mb-3">
+                                    <i data-lucide="monitor" class="w-6 h-6 ml-3 text-fuchsia-400"></i>
+                                    <h3 class="text-xl font-semibold text-white">אתר האתגר האינטראקטיבי של הכנס</h3>
+                                </div>
+                                <p class="text-sm text-indigo-300">כנס הסוכרת בירושלים 10.11.25</p>
+                            </a>
+
+                            <!-- כרטיס 2: Save the date -->
+                            <a href="https://www.canva.com/design/DAGw7IBCdCo/YNJbky7KxX6wrWEBQnAp_Q/watch?utm_content=DAGw7IBCdCo&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hd1f5b6ed09" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-pink-500">
+                                <div class="flex items-center mb-3">
+                                    <i data-lucide="bell" class="w-6 h-6 ml-3 text-pink-400"></i>
+                                    <h3 class="text-xl font-semibold text-white">Save the date כנס הסוכרת בירושלים 10.11.25</h3>
+                                </div>
+                                <p class="text-sm text-indigo-300">הכרזה רשמית ופרסום האירוע.</p>
+                            </a>
+                            
+                             <!-- כרטיס 3 (חדש): תוכנית הכנס -->
+                            <a href="https://www.canva.com/design/DAG23mXFaDA/XE_2_e39zjc6y3BD32Iymw/watch?utm_content=DAG23mXFaDA&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h9eb11cb173" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-green-500">
+                                <div class="flex items-center mb-3">
+                                    <i data-lucide="list-checks" class="w-6 h-6 ml-3 text-green-400"></i>
+                                    <h3 class="text-xl font-semibold text-white">תוכנית הכנס</h3>
+                                </div>
+                                <p class="text-sm text-indigo-300">מצגת מפורטת של סדר היום והמרצים.</p>
+                            </a>
+                        </div>
+                    </div> <!-- סוף קטגוריית משנה: כנס הסוכרת בירושלים -->
+
                 </div>
             </div>
 
         </section>
 
-        <!-- קטע 2: כלי בינה מלאכותית שימושיים (נשאר פתוח כברירת מחדל) -->
+        <!-- קטע 2: קישורים לכלי AI מומלצים -->
         <section class="p-6 rounded-3xl bg-gray-900/40 border border-indigo-700/50 backdrop-blur-md shadow-2xl shadow-indigo-900/20">
             <h2 class="text-3xl font-bold mb-8 pb-3 border-b border-indigo-600 flex items-center section-title">
                 <i data-lucide="tool" class="w-7 h-7 ml-3 text-cyan-400"></i>
-                כלי בינה מלאכותית מומלצים
+                קישורים לכלי AI מומלצים
             </h2>
 
-            <!-- רשת גמישה (5 עמודות בדסקטופ, 2 במובייל) -->
+            <!-- רשת גמישה (5 עמודות בדסקטופ) -->
             <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
 
                 <!-- 1. כלי שיחה/טקסט -->
@@ -398,12 +690,16 @@
 
     <!-- פוטר (תחתית הדף) -->
     <footer class="text-center py-8 border-t border-gray-700/50 text-gray-500">
-        <p>&copy; 2024 תפארת אליאב. כל הזכויות שמורות. נבנה באמצעות <a href="https://tailwindcss.com" class="text-indigo-400 hover:text-purple-400 transition-colors">Tailwind CSS</a>.</p>
+        <p>&copy; 2025 תפארת אליאב. כל הזכויות שמורות.</p>
     </footer>
 
     <!-- אתחול אייקונים של Lucide ופונקציית טוגל -->
     <script>
-        // פונקציה לטוגל הצגה/הסתרה של תוכן וסיבוב האייקון
+        /**
+         * פונקציה לטוגל הצגה/הסתרה של תוכן באמצעות אקורדיון
+         * @param {string} contentId - ה-ID של אלמנט התוכן להסתרה/הצגה
+         * @param {string} iconId - ה-ID של אייקון החץ לסיבוב
+         */
         function toggleSection(contentId, iconId) {
             const content = document.getElementById(contentId);
             const icon = document.getElementById(iconId);
@@ -415,7 +711,7 @@
                 // טוגל (החלפה) של המחלקה 'hidden'
                 content.classList.toggle('hidden');
 
-                // סיבוב האייקון
+                // סיבוב האייקון בצורה חלקה
                 if (isHidden) {
                     icon.classList.add('rotate-180');
                     icon.classList.remove('rotate-0');
@@ -426,7 +722,7 @@
             }
         }
 
-        // אתחול אייקונים
+        // אתחול אייקונים של Lucide לאחר טעינת הדף
         lucide.createIcons();
     </script>
 </body>
