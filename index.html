@@ -188,6 +188,78 @@
             </div>
         </header>
 
+        <!-- קטע חדש: מי אני? -->
+        <section class="mb-16 p-6 rounded-3xl bg-gray-900/40 border border-indigo-700/50 backdrop-blur-md shadow-2xl shadow-indigo-900/20">
+            <h2 class="text-3xl font-bold mb-8 pb-3 border-b border-indigo-600 flex items-center section-title">
+                <i data-lucide="user-circle" class="w-7 h-7 ml-3 text-pink-400"></i>
+                מי אני?
+            </h2>
+
+            <!-- 1. נעים להכיר -->
+            <div class="mb-6">
+                <div id="who_am_i_header" onclick="toggleSection('who_am_i_content', 'who_am_i_icon')" 
+                     class="flex justify-between items-center cursor-pointer p-3 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-b border-gray-700/50 hover:border-indigo-500 transition-colors duration-200">
+                    <h3 class="text-2xl font-semibold text-indigo-300 flex items-center">
+                        <i data-lucide="smile" class="w-6 h-6 ml-3 text-teal-300"></i>
+                        נעים להכיר
+                    </h3>
+                    <i id="who_am_i_icon" data-lucide="chevron-down" class="w-6 h-6 text-indigo-400 rotate-0"></i>
+                </div>
+                
+                <!-- תוכן נעים להכיר -->
+                <div id="who_am_i_content" class="pt-6 px-4 hidden text-gray-200 space-y-4 leading-relaxed text-lg">
+                    <p class="font-bold text-white text-xl border-r-4 border-purple-500 pr-3">
+                        מחברת בין טיפול, הוראה וחדשנות - כדי להציל חיים, למנוע סיבוכים ולקדם את דור העתיד של האחיות בישראל.
+                    </p>
+                    
+                    <p>
+                        אני <strong class="text-purple-300">תפארת אליאב</strong>, אחות מומחית קלינית בסוכרת (Diabetes Nurse Practitioner) בכללית מחוז ירושלים.
+                    </p>
+                    
+                    <p>
+                        עבורי, סוכרת היא לא רק תחום מקצועי, היא שליחות. אני רואה בעבודתי הזדמנות להציל חיים, לתרום לאיכות חיים ולמנוע סיבוכים, וגם להשפיע על הסביבה ולקדם שילוב תכנים וכלים מבוססי בינה מלאכותית (AI) בעולם האחיות והחינוך הקליני.
+                    </p>
+                    
+                    <p>
+                        אני בוגרת קורס החדשנות באחיות של שירותי בריאות כללית, בעלת תעודת הוראה מטעם משרד החינוך, מדריכה קלינית לסטודנטים לאחיות, ומרצה במסלולי ההכשרה השונים לאחיות בתחומי הסוכרת והבינה המלאכותית.
+                    </p>
+                    
+                    <p>
+                        בנוסף, אני שותפה בכתיבת בחינות ממשלתיות לאחיות, ומובילה סדנאות ויוזמות להטמעת שימוש בבינה מלאכותית בעבודת האחיות, במטרה לשפר תהליכי למידה, עדכוני ידע, קבלת החלטות ולהגביר את השימוש בכלי בינה מלאכותית במערכת הבריאות.
+                    </p>
+                    
+                    <p>
+                        אני חברת ועד מנהל בעמותת אמל"י – עמותה לקידום אחיות מומחיות בסוכרת בישראל ולקידום איכות הטיפול באנשים החיים עם סוכרת.
+                    </p>
+                    
+                    <p class="text-indigo-300 italic">
+                        "אני מאמינה שכוחן של אחיות טמון בשילוב בין ידע, רגישות וחדשנות.
+                        בכל מפגש עם מטופל, בכל הדרכה ובכל תהליך למידה, אני שואפת להצית סקרנות, לעורר השראה, וליצור עתיד שבו אחיות מובילות שינוי, במרפאה, בתהליכי הלמידה ובמערכת הבריאות כולה."
+                    </p>
+                </div>
+            </div>
+
+             <!-- 2. כתבות, ראיונות ופודקאסטים (הכנה לתוכן עתידי) -->
+             <div class="mb-6">
+                <div id="media_header" onclick="toggleSection('media_content', 'media_icon')" 
+                     class="flex justify-between items-center cursor-pointer p-3 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-b border-gray-700/50 hover:border-indigo-500 transition-colors duration-200">
+                    <h3 class="text-2xl font-semibold text-indigo-300 flex items-center">
+                        <i data-lucide="mic" class="w-6 h-6 ml-3 text-orange-300"></i>
+                        כתבות, ראיונות ופודקאסטים
+                    </h3>
+                    <i id="media_icon" data-lucide="chevron-down" class="w-6 h-6 text-indigo-400 rotate-0"></i>
+                </div>
+                
+                <div id="media_content" class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 hidden">
+                    <!-- כאן יכנסו הקישורים בעתיד -->
+                    <div class="text-center text-gray-400 py-4 bg-gray-800/30 rounded-xl border border-dashed border-gray-600">
+                        בקרוב יעלו כאן קישורים לראיונות וכתבות.
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
         <!-- קטע 1: תוכן קליני ולימודי -->
         <section class="mb-16 p-6 rounded-3xl bg-gray-900/40 border border-indigo-700/50 backdrop-blur-md shadow-2xl shadow-indigo-900/20">
             <h2 class="text-3xl font-bold mb-8 pb-3 border-b border-indigo-600 flex items-center section-title">
@@ -489,7 +561,7 @@
                 </div>
             </div>
 
-            <!-- 6. קטגוריה: סדנאות והרצאות (מספור עודכן) -->
+            <!-- 6. קטגוריה: סדנאות והרצאות (עודכן עם תת-קטגוריה) -->
             <div class="mb-6">
                 <div id="workshops_header" onclick="toggleSection('workshops_content', 'workshops_icon')" 
                      class="flex justify-between items-center cursor-pointer p-3 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-b border-gray-700/50 hover:border-indigo-500 transition-colors duration-200">
@@ -501,25 +573,43 @@
                 </div>
 
                 <!-- תוכן קטגוריה: מוסתר כברירת מחדל -->
-                <div id="workshops_content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4 hidden">
+                <div id="workshops_content" class="pt-4 hidden space-y-6">
                     
-                    <!-- כרטיס: בינה מלאכותית למדריכות קליניות יצאה לדרך -->
-                    <a href="https://www.canva.com/design/DAGx_i3-gH4/05X2yi72AbB-6EHBtIzG4w/watch?utm_content=DAGx_i3-gH4&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hdc0d610e8b" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-purple-500">
-                        <div class="flex items-center mb-3">
-                            <i data-lucide="square-stack" class="w-6 h-6 ml-3 text-green-400"></i>
-                            <h3 class="text-xl font-semibold text-white">בינה מלאכותית למדריכות קליניות יצאה לדרך</h3>
-                        </div>
-                        <p class="text-sm text-indigo-300">חזון וכלים לשילוב AI בהדרכה קלינית לאחיות.</p>
-                    </a>
+                    <!-- תת-קטגוריה חדשה: סדנת בינה מלאכותית למדריכות קליניות -->
+                    <div class="bg-gray-800/30 p-4 rounded-xl border border-pink-700/50 shadow-inner shadow-pink-900/10">
+                        <h4 id="ai_workshop_header" onclick="toggleSection('ai_workshop_content', 'ai_workshop_icon')" 
+                            class="text-xl font-bold text-pink-300 mb-4 pb-2 border-b border-pink-700 flex items-center justify-between cursor-pointer">
+                            <span class="flex items-center">
+                                <i data-lucide="bot" class="w-5 h-5 ml-2 text-pink-400"></i>
+                                סדנת בינה מלאכותית למדריכות קליניות
+                            </span>
+                            <i id="ai_workshop_icon" data-lucide="chevron-down" class="w-5 h-5 text-pink-400 rotate-0"></i>
+                        </h4>
+                        
+                        <!-- תוכן תת-קטגוריה: מוסתר כברירת מחדל -->
+                        <div id="ai_workshop_content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 hidden">
+                            
+                            <!-- כרטיס: בינה מלאכותית למדריכות קליניות יצאה לדרך -->
+                            <a href="https://www.canva.com/design/DAGx_i3-gH4/05X2yi72AbB-6EHBtIzG4w/watch?utm_content=DAGx_i3-gH4&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hdc0d610e8b" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-purple-500">
+                                <div class="flex items-center mb-3">
+                                    <i data-lucide="square-stack" class="w-6 h-6 ml-3 text-green-400"></i>
+                                    <h3 class="text-xl font-semibold text-white">בינה מלאכותית למדריכות קליניות יצאה לדרך</h3>
+                                </div>
+                                <p class="text-sm text-indigo-300">חזון וכלים לשילוב AI בהדרכה קלינית לאחיות.</p>
+                            </a>
 
-                    <!-- כרטיס: סיום סדנת AI לאחיות מדריכות קליניות -->
-                    <a href="https://www.canva.com/design/DAG3ffyroQo/K1kR_4hA46kkLzHMhZA3pw/watch?utm_content=DAG3ffyroQo&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=haa2c719820" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-pink-500">
-                        <div class="flex items-center mb-3">
-                            <i data-lucide="check-circle" class="w-6 h-6 ml-3 text-pink-400"></i>
-                            <h3 class="text-xl font-semibold text-white">סיום סדנת AI לאחיות מדריכות קליניות</h3>
+                            <!-- כרטיס: סיום סדנת AI לאחיות מדריכות קליניות -->
+                            <a href="https://www.canva.com/design/DAG3ffyroQo/K1kR_4hA46kkLzHMhZA3pw/watch?utm_content=DAG3ffyroQo&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=haa2c719820" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-pink-500">
+                                <div class="flex items-center mb-3">
+                                    <i data-lucide="check-circle" class="w-6 h-6 ml-3 text-pink-400"></i>
+                                    <h3 class="text-xl font-semibold text-white">סיום סדנת AI לאחיות מדריכות קליניות</h3>
+                                </div>
+                                <p class="text-sm text-indigo-300">הצגת תוצרי סיום סדנת בינה מלאכותית למדריכות קליניות.</p>
+                            </a>
+                            
                         </div>
-                        <p class="text-sm text-indigo-300">הצגת תוצרי סיום סדנת בינה מלאכותית למדריכות קליניות.</p>
-                    </a>
+                    </div>
+
                 </div>
             </div>
             
@@ -682,6 +772,12 @@
                 <a href="https://www.openevidence.com" target="_blank" class="card block p-3 rounded-lg bg-gray-800/50 hover:bg-gray-700/60 border border-transparent hover:border-cyan-500 text-center text-sm font-medium">
                     <i data-lucide="file-text" class="w-5 h-5 mx-auto mb-1 text-orange-400"></i>
                     Open Evidence
+                </a>
+                
+                <!-- 5. הוספת Google Flow כאן -->
+                <a href="https://labs.google/flow/about" target="_blank" class="card block p-3 rounded-lg bg-gray-800/50 hover:bg-gray-700/60 border border-transparent hover:border-cyan-500 text-center text-sm font-medium">
+                    <i data-lucide="workflow" class="w-5 h-5 mx-auto mb-1 text-orange-400"></i>
+                    Google Flow
                 </a>
             </div>
         </section>
