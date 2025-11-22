@@ -10,726 +10,710 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         /* ------------------------------------------------ */
-        /* CSS גלובלי ורקע דינאמי (אפקט ריחוף חדש) */
+        /* CSS גלובלי ורקע דינאמי */
         /* ------------------------------------------------ */
 
         :root {
-            --primary-blue: #6366F1; /* Indigo-500 */
-            --primary-purple: #9333EA; /* Purple-600 */
-            --primary-cyan: #06B6D4; /* Cyan-500 */
-            --dark-bg: #040816;
-            --darker-bg: #01040a;
+            --primary-blue: #6366F1;
+            --primary-purple: #9333EA;
+            --primary-cyan: #06B6D4;
+            --dark-bg: #020617; /* Slate-950 - כהה ועמוק יותר */
         }
 
-        /* הגדרת אנימציה לתנועה עדינה ובהירה */
-        @keyframes dynamic-float {
-            0% { transform: translate(0, 0) scale(1); opacity: 0.8; }
-            50% { transform: translate(50px, -40px) scale(1.05); opacity: 0.9; }
-            100% { transform: translate(0, 0) scale(1); opacity: 0.8; }
+        /* אנימציית רקע צבעונית (Blobs) */
+        @keyframes float-blob {
+            0% { transform: translate(0px, 0px) scale(1); }
+            33% { transform: translate(30px, -50px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+            100% { transform: translate(0px, 0px) scale(1); }
         }
 
-        @keyframes dynamic-float-reverse {
-            0% { transform: translate(0, 0) scale(1); opacity: 0.7; }
-            50% { transform: translate(-40px, 30px) scale(1.05); opacity: 0.85; }
-            100% { transform: translate(0, 0) scale(1); opacity: 0.7; }
-        }
-
-        /* הגדרת פונט Inter כברירת מחדל ורקע אסתטי */
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--dark-bg);
-            color: #E0E7FF;
+            color: #F8FAFC; /* לבן כמעט מוחלט לטקסט ברירת מחדל */
             line-height: 1.75;
             overflow-x: hidden;
             position: relative;
-            /* הסרת כל האפקטים הקודמים מ-body */
         }
         
-        /* שכבת הרקע הדינאמית - מופרדת מהתוכן */
-        .dynamic-background {
+        /* מיכל הרקע - מכיל גם את הצבעים וגם את ה-Canvas */
+        .background-container {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: -1; /* מוודא שהאובייקטים מאחורי התוכן הראשי */
+            z-index: -1;
             overflow: hidden;
-        }
-        
-        /* הוספת כתם אור מרחף (אובייקט 1: בהיר כחול/סגול) */
-        .dynamic-background::before {
-            content: '';
-            position: absolute;
-            top: 10%; 
-            left: 5%;
-            width: 450px;
-            height: 450px;
-            /* צבע בהיר ועדין */
-            background: radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.4) 0%, transparent 60%); 
-            filter: blur(80px); /* טשטוש חזק */
-            pointer-events: none;
-            animation: dynamic-float 45s ease-in-out infinite alternate;
+            background: radial-gradient(circle at top center, #1e293b 0%, #020617 100%);
         }
 
-        /* הוספת כתם אור מרחף (אובייקט 2: בהיר ציאן/טורקיז) */
-        .dynamic-background::after {
-            content: '';
+        /* כתמי צבע רקע */
+        .blob {
             position: absolute;
-            bottom: 15%; 
-            right: 10%;
-            width: 550px;
-            height: 550px;
-            /* צבע בהיר ועדין */
-            background: radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.35) 0%, transparent 65%); 
-            filter: blur(100px); 
-            pointer-events: none;
-            animation: dynamic-float-reverse 50s ease-in-out infinite alternate; 
+            filter: blur(80px);
+            opacity: 0.5; /* הגברת נראות הצבעים מעט */
+            animation: float-blob 20s infinite ease-in-out;
+            border-radius: 50%;
+        }
+        .blob-1 { top: -10%; left: -10%; width: 500px; height: 500px; background: #4f46e5; animation-delay: 0s; }
+        .blob-2 { bottom: -10%; right: -10%; width: 600px; height: 600px; background: #0891b2; animation-delay: -5s; }
+        .blob-3 { top: 40%; left: 40%; width: 400px; height: 400px; background: #7c3aed; animation-delay: -10s; opacity: 0.3; }
+
+        /* רשת חלקיקים (Canvas) */
+        #particles-canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.5;
         }
         
         /* ------------------------------------------------ */
-        /* אלמנטים פנימיים וכרטיסים (ללא שינוי, רק העתקה) */
+        /* עיצוב Glassmorphism (זכוכית) ואנימציות */
         /* ------------------------------------------------ */
         
-        /* סגנון כללי לכרטיסים (הצללה ומעבר) */
-        .card {
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            transform: scale(1);
-            /* שמירה על צל עמוק */
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.4);
-            border: 1px solid transparent; 
-        }
-        .card:hover {
-            transform: translateY(-4px) scale(1.02); 
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 8px 10px -6px rgba(0, 0, 0, 0.6);
-            border-color: var(--primary-blue); /* גבול הדגשה כחול-סגול */
+        /* סגנון לכרטיסים ואזורים עם רקע זכוכית - כהה יותר לקונטרסט */
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.75); /* Slate-900 עם אטימות גבוהה יותר */
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
 
-        /* סגנון כותרות סעיפים עם אפקט זוהר */
-        .section-title {
-            text-shadow: 0 0 10px rgba(99, 102, 241, 0.7);
+        /* אנימציית כניסה בגלילה */
+        .reveal {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* כרטיסים אינטראקטיביים */
+        .hover-card {
+            transition: all 0.3s ease-out;
+            position: relative;
+            overflow: hidden;
+            background: rgba(30, 41, 59, 0.6); /* רקע כרטיס ברור יותר */
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .hover-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.05), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .hover-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px -5px rgba(0, 0, 0, 0.5);
+            border-color: rgba(255, 255, 255, 0.3);
+            background: rgba(30, 41, 59, 0.9);
+        }
+        .hover-card:hover::before {
+            opacity: 1;
+        }
+
+        /* כותרות זוהרות */
+        .glow-text {
+            text-shadow: 0 0 25px rgba(167, 139, 250, 0.6); /* זוהר חזק יותר */
         }
         
-        /* סגנון לאייקוני האקורדיון */
-        .rotate-180 {
-            transform: rotate(180deg);
-            transition: transform 0.3s ease;
-        }
-        .rotate-0 {
-            transform: rotate(0deg);
-            transition: transform 0.3s ease;
-        }
+        /* אייקון מסתובב באקורדיון */
+        .rotate-180 { transform: rotate(180deg); transition: transform 0.3s ease; }
+        .rotate-0 { transform: rotate(0deg); transition: transform 0.3s ease; }
         
-        /* סגנון מותאם אישית לטקסט TikTok */
+        /* טיקטוק טקסט */
         .tiktok-icon-text {
-            font-size: 0.75rem;
-            font-weight: 900;
-            line-height: 1;
-            text-shadow: -1px -1px 0 #00f2ea, 1px 1px 0 #ff0050; 
-            padding: 3px; 
+            font-size: 0.75rem; font-weight: 900; line-height: 1;
+            text-shadow: -1px -1px 0 #00f2ea, 1px 1px 0 #ff0050; padding: 3px;
+        }
+        
+        /* הדגשת טקסט חזקה */
+        strong, b, .font-bold {
+            color: #ffffff;
+            font-weight: 700;
+        }
+        
+        /* שיפור קריאות פסקאות */
+        p {
+            color: #e2e8f0; /* Slate-200 */
         }
     </style>
 </head>
-<body class="min-h-screen antialiased">
+<body class="min-h-screen antialiased selection:bg-indigo-500 selection:text-white">
 
-    <!-- אלמנט חדש שמכיל את הרקע הדינאמי המרחף, ללא השפעה על התוכן -->
-    <div class="dynamic-background"></div>
+    <!-- רקע דינאמי: צבעים + רשת חלקיקים -->
+    <div class="background-container">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+        <canvas id="particles-canvas"></canvas>
+    </div>
 
-    <!-- מיכל ראשי ומרוכז (התוכן נשאר יציב לחלוטין) -->
-    <div class="max-w-4xl mx-auto px-4 py-12 md:py-20 relative">
+    <!-- מיכל ראשי -->
+    <div class="max-w-5xl mx-auto px-4 py-12 md:py-20 relative z-10">
 
-        <!-- כותרת ראשית ופרטי קשר (Hero Section) -->
-        <header class="text-center mb-16">
+        <!-- כותרת ראשית (Hero) -->
+        <header class="text-center mb-20 reveal">
             <!-- תמונת לוגו -->
-            <div class="w-32 h-32 mx-auto mb-4 rounded-full flex items-center justify-center 
-                         border-4 border-cyan-400 shadow-xl p-1 bg-white text-gray-900 overflow-hidden 
-                         hover:border-indigo-400 transition-colors duration-300">
-                <img 
-                    src="/logo.png" 
-                    alt="תמונת לוגו" 
-                    class="w-full h-full object-cover rounded-full"
-                    onerror="this.onerror=null; this.src='https://placehold.co/128x128/FFFFFF/1E1B4B?text=AI+Expert';"
-                >
+            <div class="w-40 h-40 mx-auto mb-8 rounded-full flex items-center justify-center 
+                         p-1 bg-gradient-to-br from-cyan-400 via-purple-500 to-pink-500 shadow-2xl shadow-indigo-500/40
+                         hover:scale-105 transition-transform duration-500">
+                <div class="w-full h-full rounded-full overflow-hidden border-4 border-slate-900 bg-white">
+                    <img 
+                        src="/logo.png" 
+                        alt="תמונת לוגו" 
+                        class="w-full h-full object-cover"
+                        onerror="this.onerror=null; this.src='https://placehold.co/128x128/FFFFFF/1E1B4B?text=AI+Expert';"
+                    >
+                </div>
             </div>
             
-            <!-- שם העסק -->
-            <h1 class="text-4xl font-extrabold text-transparent bg-clip-text 
-                       bg-gradient-to-r from-indigo-300 to-purple-500 mb-2 section-title">
+            <!-- שם וכותרת -->
+            <h1 class="text-5xl md:text-7xl font-black text-white mb-4 glow-text tracking-tight drop-shadow-lg">
                 תפארת אליאב
             </h1>
-            <!-- כיתוב תפקיד -->
-            <p class="text-xl text-indigo-300 mb-6">אחות מומחית בסוכרת | מרצה | מובילת חדשנות בשילוב בינה מלאכותית בעבודת האחות</p>
+            <p class="text-xl md:text-2xl text-indigo-100 font-medium max-w-3xl mx-auto leading-relaxed drop-shadow-md">
+                אחות מומחית בסוכרת | מרצה | מובילת חדשנות בשילוב בינה מלאכותית
+            </p>
 
-            <!-- קישורי קשר ורשתות חברתיות -->
-            <div class="flex justify-center space-x-4 space-x-reverse">
-                
-                <!-- קישור: לינקדאין -->
+            <!-- רשתות חברתיות -->
+            <div class="flex justify-center gap-5 mt-10">
                 <a href="https://www.linkedin.com/in/tiferet-eliav?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" target="_blank" 
-                   class="text-indigo-400 hover:text-purple-400 transition-colors p-3 rounded-full hover:bg-white/10 hover:shadow-lg hover:shadow-indigo-500/20" aria-label="LinkedIn">
-                    <i data-lucide="linkedin" class="w-6 h-6"></i>
+                   class="p-3.5 rounded-full bg-slate-800 hover:bg-indigo-600 text-white transition-all hover:scale-110 shadow-lg border border-slate-600 hover:border-white">
+                    <i data-lucide="linkedin" class="w-7 h-7"></i>
                 </a>
-                
-                <!-- קישור: פייסבוק -->
                 <a href="https://www.facebook.com/share/14N3dWoMSFQ/" target="_blank" 
-                   class="text-indigo-400 hover:text-purple-400 transition-colors p-3 rounded-full hover:bg-white/10 hover:shadow-lg hover:shadow-indigo-500/20" aria-label="Facebook">
-                    <i data-lucide="facebook" class="w-6 h-6"></i>
+                   class="p-3.5 rounded-full bg-slate-800 hover:bg-blue-600 text-white transition-all hover:scale-110 shadow-lg border border-slate-600 hover:border-white">
+                    <i data-lucide="facebook" class="w-7 h-7"></i>
                 </a>
-                
-                <!-- קישור: אינסטגרם -->
                 <a href="https://www.instagram.com/tiferete?igsh=aWV5N3ZqYm1xNHJv" target="_blank" 
-                   class="text-indigo-400 hover:text-purple-400 transition-colors p-3 rounded-full hover:bg-white/10 hover:shadow-lg hover:shadow-indigo-500/20" aria-label="Instagram">
-                    <i data-lucide="instagram" class="w-6 h-6"></i>
+                   class="p-3.5 rounded-full bg-slate-800 hover:bg-pink-600 text-white transition-all hover:scale-110 shadow-lg border border-slate-600 hover:border-white">
+                    <i data-lucide="instagram" class="w-7 h-7"></i>
                 </a>
-                
-                <!-- קישור: טיקטוק -->
                 <a href="https://www.tiktok.com/@tiferet.e?_r=1&_t=ZS-912pCHYXmmm" target="_blank" 
-                   class="text-indigo-400 hover:text-purple-400 transition-colors p-3 rounded-full hover:bg-white/10 hover:shadow-lg hover:shadow-indigo-500/20 flex items-center justify-center" aria-label="TikTok">
-                    <span class="tiktok-icon-text">TikTok</span>
+                   class="p-3.5 rounded-full bg-slate-800 hover:bg-black text-white transition-all hover:scale-110 shadow-lg border border-slate-600 hover:border-white flex items-center justify-center w-14 h-14">
+                    <span class="tiktok-icon-text text-sm">TikTok</span>
                 </a>
             </div>
         </header>
 
-        <!-- קטע חדש: מי אני? -->
-        <section class="mb-16 p-6 rounded-3xl bg-gray-900/40 border border-indigo-700/50 backdrop-blur-md shadow-2xl shadow-indigo-900/20">
-            <h2 class="text-3xl font-bold mb-8 pb-3 border-b border-indigo-600 flex items-center section-title">
-                <i data-lucide="user-circle" class="w-7 h-7 ml-3 text-pink-400"></i>
+        <!-- קטע: מי אני? -->
+        <section class="mb-12 p-8 rounded-3xl glass-panel reveal">
+            <h2 class="text-3xl font-extrabold mb-8 pb-4 border-b border-pink-500/30 flex items-center text-pink-200">
+                <i data-lucide="user-circle" class="w-9 h-9 ml-3 text-pink-400"></i>
                 מי אני?
             </h2>
 
-            <!-- 1. נעים להכיר -->
-            <div class="mb-6">
+            <!-- נעים להכיר -->
+            <div class="mb-4">
                 <div id="who_am_i_header" onclick="toggleSection('who_am_i_content', 'who_am_i_icon')" 
-                     class="flex justify-between items-center cursor-pointer p-3 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-b border-gray-700/50 hover:border-indigo-500 transition-colors duration-200">
-                    <h3 class="text-2xl font-semibold text-indigo-300 flex items-center">
-                        <i data-lucide="smile" class="w-6 h-6 ml-3 text-teal-300"></i>
+                     class="flex justify-between items-center cursor-pointer p-5 rounded-2xl bg-slate-800/60 hover:bg-slate-700/80 transition-all duration-300 border border-slate-600/50 hover:border-pink-400 shadow-md">
+                    <h3 class="text-xl font-bold text-white flex items-center">
+                        <i data-lucide="smile" class="w-7 h-7 ml-3 text-teal-400"></i>
                         נעים להכיר
                     </h3>
-                    <i id="who_am_i_icon" data-lucide="chevron-down" class="w-6 h-6 text-indigo-400 rotate-0"></i>
+                    <i id="who_am_i_icon" data-lucide="chevron-down" class="w-7 h-7 text-indigo-200 rotate-0"></i>
                 </div>
                 
-                <!-- תוכן נעים להכיר - מעודכן לתצוגה זורמת (Float) -->
-                <div id="who_am_i_content" class="pt-6 px-4 hidden text-gray-200 leading-relaxed text-lg block">
-                    
-                    <!-- תמונה אישית - מוצפת לשמאל עם גלישת טקסט -->
-                    <img src="me.jpeg" 
-                         alt="תמונה של תפארת אליאב" 
-                         class="w-full md:w-1/3 rounded-2xl shadow-xl border-2 border-indigo-500/50 object-cover mb-6 md:float-left md:mr-6" 
-                         onerror="this.onerror=null; this.src='https://placehold.co/600x800/1E1B4B/FFFFFF?text=Tiferet+Eliav';">
+                <div id="who_am_i_content" class="pt-6 px-2 hidden leading-relaxed text-lg block">
+                    <div class="p-6 bg-slate-900/60 rounded-2xl border border-slate-700 shadow-inner">
+                        <!-- תמונה וטקסט -->
+                        <img src="me.jpeg" 
+                             alt="תמונה של תפארת אליאב" 
+                             class="w-full md:w-1/3 rounded-xl shadow-2xl shadow-black/40 border-2 border-indigo-400/30 object-cover mb-6 md:float-left md:mr-8 hover:scale-[1.01] transition-transform duration-500" 
+                             onerror="this.onerror=null; this.src='https://placehold.co/600x800/1E1B4B/FFFFFF?text=Tiferet+Eliav';">
 
-                    <div class="space-y-4">
-                        <p class="font-bold text-white text-xl border-r-4 border-purple-500 pr-3">
-                            נעים מאוד, אני <span class="text-purple-300">תפארת אליאב</span>.
-                        </p>
-                        
-                        <p>
-                             אחות מומחית קלינית בסוכרת (Diabetes Nurse Practitioner) בכללית מחוז ירושלים, ובעשייתי אני מחברת בין טיפול, הוראה וחדשנות - במטרה להציל חיים, למנוע סיבוכים ולקדם את דור העתיד של האחיות בישראל.
-                        </p>
-                        
-                        <p>
-                            עבורי, סוכרת היא לא רק תחום מקצועי, היא שליחות. אני רואה בעבודתי הזדמנות להציל חיים, לתרום לאיכות חיים ולמנוע סיבוכים, וגם להשפיע על הסביבה ולקדם שילוב תכנים וכלים מבוססי בינה מלאכותית (AI) בעולם האחיות והחינוך הקליני.
-                        </p>
-                        
-                        <p>
-                            אני בוגרת קורס החדשנות באחיות של שירותי בריאות כללית, בעלת תעודת הוראה מטעם משרד החינוך, מדריכה קלינית לסטודנטים לאחיות, ומרצה במסלולי ההכשרה השונים לאחיות בתחומי הסוכרת והבינה המלאכותית.
-                        </p>
-                        
-                        <p>
-                            בנוסף, אני שותפה בכתיבת בחינות ממשלתיות לאחיות, ומובילה סדנאות ויוזמות להטמעת שימוש בבינה מלאכותית בעבודת האחיות, במטרה לשפר תהליכי למידה, עדכוני ידע, קבלת החלטות ולהגביר את השימוש בכלי בינה מלאכותית במערכת הבריאות.
-                        </p>
-                        
-                        <p>
-                            אני חברת ועד מנהל בעמותת אמל"י – עמותה לקידום אחיות מומחיות בסוכרת בישראל ולקידום איכות הטיפול באנשים החיים עם סוכרת.
-                        </p>
-                        
-                        <p class="text-indigo-300 italic">
-                            "אני מאמינה שכוחן של אחיות טמון בשילוב בין ידע, רגישות וחדשנות.
-                            בכל מפגש עם מטופל, בכל הדרכה ובכל תהליך למידה, אני שואפת להצית סקרנות, לעורר השראה, וליצור עתיד שבו אחיות מובילות שינוי, במרפאה, בתהליכי הלמידה ובמערכת הבריאות כולה."
-                        </p>
+                        <div class="space-y-5 text-slate-100 font-light">
+                            <p class="font-bold text-white text-2xl border-r-4 border-purple-500 pr-4">
+                                נעים מאוד, אני <span class="text-purple-300">תפארת אליאב</span>.
+                            </p>
+                            <p class="text-lg">
+                                 <span class="font-semibold text-white">אחות מומחית קלינית בסוכרת</span> (Diabetes Nurse Practitioner) בכללית מחוז ירושלים, ובעשייתי אני מחברת בין טיפול, הוראה וחדשנות - במטרה להציל חיים, למנוע סיבוכים ולקדם את דור העתיד של האחיות בישראל.
+                            </p>
+                            <p>
+                                עבורי, סוכרת היא לא רק תחום מקצועי, היא <span class="font-semibold text-teal-200">שליחות</span>. אני רואה בעבודתי הזדמנות להציל חיים, לתרום לאיכות חיים ולמנוע סיבוכים, וגם להשפיע על הסביבה ולקדם שילוב תכנים וכלים מבוססי <span class="font-semibold text-purple-200">בינה מלאכותית (AI)</span> בעולם האחיות והחינוך הקליני.
+                            </p>
+                            <p>
+                                אני בוגרת קורס החדשנות באחיות של שירותי בריאות כללית, בעלת תעודת הוראה מטעם משרד החינוך, מדריכה קלינית לסטודנטים לאחיות, ומרצה במסלולי ההכשרה השונים לאחיות בתחומי הסוכרת והבינה המלאכותית.
+                            </p>
+                            <p>
+                                בנוסף, אני שותפה בכתיבת בחינות ממשלתיות לאחיות, ומובילה סדנאות ויוזמות להטמעת שימוש בבינה מלאכותית בעבודת האחיות, במטרה לשפר תהליכי למידה, עדכוני ידע, קבלת החלטות ולהגביר את השימוש בכלי בינה מלאכותית במערכת הבריאות.
+                            </p>
+                            <p>
+                                אני חברת ועד מנהל בעמותת <span class="font-semibold text-white">אמל"י</span> – עמותה לקידום אחיות מומחיות בסוכרת בישראל ולקידום איכות הטיפול באנשים החיים עם סוכרת.
+                            </p>
+                            <p class="text-indigo-100 italic font-medium mt-6 p-5 bg-indigo-900/40 rounded-xl border-r-4 border-indigo-400 shadow-md text-lg">
+                                "אני מאמינה שכוחן של אחיות טמון בשילוב בין ידע, רגישות וחדשנות.
+                                בכל מפגש עם מטופל, בכל הדרכה ובכל תהליך למידה, אני שואפת להצית סקרנות, לעורר השראה, וליצור עתיד שבו אחיות מובילות שינוי, במרפאה, בתהליכי הלמידה ובמערכת הבריאות כולה."
+                            </p>
+                        </div>
+                        <div class="clear-both"></div> <!-- מנקה את ה-Float -->
                     </div>
                 </div>
             </div>
 
-             <!-- 2. כתבות, ראיונות ופודקאסטים (הכנה לתוכן עתידי) -->
-             <div class="mb-6">
+             <!-- כתבות וראיונות -->
+             <div class="mb-4">
                 <div id="media_header" onclick="toggleSection('media_content', 'media_icon')" 
-                     class="flex justify-between items-center cursor-pointer p-3 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-b border-gray-700/50 hover:border-indigo-500 transition-colors duration-200">
-                    <h3 class="text-2xl font-semibold text-indigo-300 flex items-center">
-                        <i data-lucide="mic" class="w-6 h-6 ml-3 text-orange-300"></i>
+                     class="flex justify-between items-center cursor-pointer p-5 rounded-2xl bg-slate-800/60 hover:bg-slate-700/80 transition-all duration-300 border border-slate-600/50 hover:border-orange-400 shadow-md">
+                    <h3 class="text-xl font-bold text-white flex items-center">
+                        <i data-lucide="mic" class="w-7 h-7 ml-3 text-orange-400"></i>
                         כתבות, ראיונות ופודקאסטים
                     </h3>
-                    <i id="media_icon" data-lucide="chevron-down" class="w-6 h-6 text-indigo-400 rotate-0"></i>
+                    <i id="media_icon" data-lucide="chevron-down" class="w-7 h-7 text-indigo-200 rotate-0"></i>
                 </div>
                 
-                <div id="media_content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-4 hidden">
-                    <!-- כרטיס: כתבה במאקו - הצלת הראייה -->
-                    <a href="https://www.mako.co.il/news-lifestyle/2025_q2/Article-1e478fe43a65791026.htm?hl=en-US" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-orange-500">
-                        <div class="flex items-center mb-3">
-                            <i data-lucide="newspaper" class="w-6 h-6 ml-3 text-orange-400"></i>
-                            <h3 class="text-xl font-semibold text-white">הצלת הראייה (Mako)</h3>
+                <div id="media_content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-6 hidden">
+                    <a href="https://www.mako.co.il/news-lifestyle/2025_q2/Article-1e478fe43a65791026.htm?hl=en-US" target="_blank" class="glass-panel hover-card p-6 rounded-2xl block group">
+                        <div class="flex items-center mb-4">
+                            <div class="p-3 rounded-lg bg-orange-500 text-white shadow-lg shadow-orange-500/30">
+                                <i data-lucide="newspaper" class="w-6 h-6"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-white mr-4 group-hover:text-orange-300 transition-colors">הצלת הראייה (Mako)</h3>
                         </div>
-                        <p class="text-sm text-indigo-300">כתבה על מקרה בו התעקשות מקצועית שלי על בדיקת עיניים הובילה לגילוי היפרדות רשתית ולניתוח חירום שהציל את ראייתו של המטופל.</p>
+                        <p class="text-base text-slate-300 font-medium leading-relaxed">כתבה על מקרה בו התעקשות מקצועית שלי על בדיקת עיניים הובילה לגילוי היפרדות רשתית ולניתוח חירום שהציל את ראייתו של המטופל.</p>
                     </a>
 
-                    <!-- כרטיס: ראיון ברדיו ירושלים - השמנה אינה בחירה -->
-                    <a href="https://www.canva.com/design/DAG5EOCHNZQ/y00np0RlbgMluDdeaCJ94A/watch?utm_content=DAG5EOCHNZQ&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h536950304e" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-purple-500">
-                        <div class="flex items-center mb-3">
-                            <i data-lucide="radio" class="w-6 h-6 ml-3 text-purple-400"></i>
-                            <h3 class="text-xl font-semibold text-white">השמנה אינה בחירה (רדיו ירושלים)</h3>
+                    <a href="https://www.canva.com/design/DAG5EOCHNZQ/y00np0RlbgMluDdeaCJ94A/watch?utm_content=DAG5EOCHNZQ&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h536950304e" target="_blank" class="glass-panel hover-card p-6 rounded-2xl block group">
+                        <div class="flex items-center mb-4">
+                            <div class="p-3 rounded-lg bg-purple-600 text-white shadow-lg shadow-purple-600/30">
+                                <i data-lucide="radio" class="w-6 h-6"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-white mr-4 group-hover:text-purple-300 transition-colors">השמנה אינה בחירה</h3>
                         </div>
-                        <p class="text-sm text-indigo-300">הקלטה מתוך דברים שאמרתי בשידור חי ברדיו ירושלים כתגובה לקמפיין "השמנה זו בחירה?".</p>
+                        <p class="text-base text-slate-300 font-medium leading-relaxed">הקלטה מתוך דברים שאמרתי בשידור חי ברדיו ירושלים כתגובה לקמפיין "השמנה זו בחירה?".</p>
                     </a>
 
-                    <!-- כרטיס: מגזין בריאות ירושלים -->
-                    <a href="https://user-oqw6j7d.cld.bz/mgzyn-bryvt-yrvshlym" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-teal-500">
-                        <div class="flex items-center mb-3">
-                            <i data-lucide="book-open" class="w-6 h-6 ml-3 text-teal-400"></i>
-                            <h3 class="text-xl font-semibold text-white">מגזין בריאות ירושלים</h3>
+                    <a href="https://user-oqw6j7d.cld.bz/mgzyn-bryvt-yrvshlym" target="_blank" class="glass-panel hover-card p-6 rounded-2xl block group">
+                        <div class="flex items-center mb-4">
+                            <div class="p-3 rounded-lg bg-teal-600 text-white shadow-lg shadow-teal-600/30">
+                                <i data-lucide="book-open" class="w-6 h-6"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-white mr-4 group-hover:text-teal-300 transition-colors">מגזין בריאות ירושלים</h3>
                         </div>
-                        <p class="text-sm text-indigo-300">כתבה על האחיות המומחיות במחוז ירושלים של הכללית.</p>
+                        <p class="text-base text-slate-300 font-medium leading-relaxed">כתבה על האחיות המומחיות במחוז ירושלים של הכללית.</p>
                     </a>
                 </div>
             </div>
-
         </section>
 
         <!-- קטע 1: תוכן קליני ולימודי -->
-        <section class="mb-16 p-6 rounded-3xl bg-gray-900/40 border border-indigo-700/50 backdrop-blur-md shadow-2xl shadow-indigo-900/20">
-            <h2 class="text-3xl font-bold mb-8 pb-3 border-b border-indigo-600 flex items-center section-title">
-                <i data-lucide="sparkles" class="w-7 h-7 ml-3 text-purple-400"></i>
-                תוכן קליני ולימודי שפותח בעזרת כלי AI
+        <section class="mb-16 p-8 rounded-3xl glass-panel reveal">
+            <h2 class="text-3xl font-extrabold mb-8 pb-4 border-b border-purple-500/30 flex items-center text-purple-200">
+                <i data-lucide="sparkles" class="w-9 h-9 ml-3 text-purple-400"></i>
+                תוכן קליני ולימודי (AI)
             </h2>
 
-            <!-- 1. קטגוריה: אחות מומחית קלינית בסוכרת (הועבר לכאן) -->
+            <!-- 1. אחות מומחית -->
             <div class="mb-6">
                 <div id="nurse_expert_header" onclick="toggleSection('nurse_expert_content', 'nurse_expert_icon')" 
-                     class="flex justify-between items-center cursor-pointer p-3 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-b border-gray-700/50 hover:border-indigo-500 transition-colors duration-200">
-                    <h3 class="text-2xl font-semibold text-indigo-300 flex items-center">
-                        <i data-lucide="award" class="w-6 h-6 ml-3 text-teal-300"></i>
+                     class="flex justify-between items-center cursor-pointer p-5 rounded-2xl bg-slate-800/60 hover:bg-slate-700/80 transition-all duration-300 border border-slate-600/50 hover:border-purple-400 shadow-md">
+                    <h3 class="text-xl font-bold text-white flex items-center">
+                        <i data-lucide="award" class="w-7 h-7 ml-3 text-teal-400"></i>
                         אחות מומחית קלינית בסוכרת
                     </h3>
-                    <i id="nurse_expert_icon" data-lucide="chevron-down" class="w-6 h-6 text-indigo-400 rotate-0"></i>
+                    <i id="nurse_expert_icon" data-lucide="chevron-down" class="w-7 h-7 text-indigo-200 rotate-0"></i>
                 </div>
                 
-                <!-- תוכן קטגוריה: מוסתר כברירת מחדל -->
-                <div id="nurse_expert_content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4 hidden">
+                <div id="nurse_expert_content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-6 hidden">
                     
-                    <!-- כרטיס: סרטון פרסום להגברת מודעות לתפקיד האחות המומחית בסוכרת (מועבר לראש הרשימה) -->
-                    <a href="https://www.canva.com/design/DAG3fMojWEo/BpJq-G0B9OxV-93lunvAjQ/watch?utm_content=DAG3fMojWEo&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h65c6fa3487" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-teal-500">
-                        <div class="flex items-center mb-3">
-                            <i data-lucide="megaphone" class="w-6 h-6 ml-3 text-teal-400"></i>
-                            <h3 class="text-xl font-semibold text-white">סרטון פרסום להגברת מודעות לתפקיד האחות המומחית בסוכרת</h3>
+                    <a href="https://www.canva.com/design/DAG3fMojWEo/BpJq-G0B9OxV-93lunvAjQ/watch?utm_content=DAG3fMojWEo&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h65c6fa3487" target="_blank" class="glass-panel hover-card p-6 rounded-2xl block group">
+                        <div class="flex items-center mb-4">
+                            <div class="p-3 rounded-lg bg-teal-500 text-white shadow-lg shadow-teal-500/30">
+                                <i data-lucide="megaphone" class="w-6 h-6"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-white mr-4">סרטון פרסום לתפקיד</h3>
                         </div>
-                        <!-- שורת התיאור הוסרה -->
+                        <p class="text-base text-slate-300 font-medium">להגברת מודעות לתפקיד האחות המומחית בסוכרת.</p>
                     </a>
                     
-                    <!-- כרטיס: אחות מומחית קלינית בסוכרת (מצגת) -->
-                    <a href="https://www.canva.com/design/DAGnu0a-n4w/q4WXr0a4QQGeLK9sDnaJYQ/view?utm_content=DAGnu0a-n4w&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h2eead23f1f" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-purple-500">
-                        <div class="flex items-center mb-3">
-                            <i data-lucide="square-stack" class="w-6 h-6 ml-3 text-green-400"></i>
-                            <h3 class="text-xl font-semibold text-white">אחות מומחית קלינית בסוכרת</h3>
+                    <a href="https://www.canva.com/design/DAGnu0a-n4w/q4WXr0a4QQGeLK9sDnaJYQ/view?utm_content=DAGnu0a-n4w&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h2eead23f1f" target="_blank" class="glass-panel hover-card p-6 rounded-2xl block group">
+                        <div class="flex items-center mb-4">
+                            <div class="p-3 rounded-lg bg-green-600 text-white shadow-lg shadow-green-600/30">
+                                <i data-lucide="square-stack" class="w-6 h-6"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-white mr-4">אחות מומחית (מצגת)</h3>
                         </div>
-                        <p class="text-sm text-indigo-300">מצגת מולטימדיה על תפקיד האחות המומחית הקלינית בסוכרת.</p>
+                        <p class="text-base text-slate-300 font-medium">מצגת מולטימדיה על תפקיד האחות המומחית.</p>
                     </a>
 
-                    <!-- כרטיס: שיר אחיות מומחיות בסוכרת -->
-                    <a href="https://www.canva.com/design/DAGaNsWUQqU/k4gppG-rIPD3eP5Fmu0JkA/watch?utm_content=DAGaNsWUQqU&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h302daa8c24" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-purple-500">
-                        <div class="flex items-center mb-3">
-                            <i data-lucide="music" class="w-6 h-6 ml-3 text-yellow-400"></i>
-                            <h3 class="text-xl font-semibold text-white">שיר אחיות מומחיות בסוכרת</h3>
+                    <a href="https://www.canva.com/design/DAGaNsWUQqU/k4gppG-rIPD3eP5Fmu0JkA/watch?utm_content=DAGaNsWUQqU&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h302daa8c24" target="_blank" class="glass-panel hover-card p-6 rounded-2xl block group">
+                        <div class="flex items-center mb-4">
+                            <div class="p-3 rounded-lg bg-yellow-500 text-white shadow-lg shadow-yellow-500/30">
+                                <i data-lucide="music" class="w-6 h-6"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-white mr-4">שיר אחיות מומחיות</h3>
                         </div>
-                        <p class="text-sm text-indigo-300">סרטון אודיו-ויזואלי מיוחד המוקדש לאחיות מומחיות בסוכרת.</p>
+                        <p class="text-base text-slate-300 font-medium">סרטון אודיו-ויזואלי מיוחד.</p>
                     </a>
                 </div>
             </div>
 
-            <!-- 2. קטגוריה: סימולציות ומשחקים (עכשיו מכיל אקורדיונים ממוקדים) -->
+            <!-- 2. סימולציות ומשחקים -->
             <div class="mb-6">
                 <div id="simulations_header" onclick="toggleSection('simulations_content', 'simulations_icon')" 
-                     class="flex justify-between items-center cursor-pointer p-3 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-b border-gray-700/50 hover:border-indigo-500 transition-colors duration-200">
-                    <h3 class="text-2xl font-semibold text-indigo-300 flex items-center">
-                        <i data-lucide="gamepad" class="w-6 h-6 ml-3 text-red-300"></i>
+                     class="flex justify-between items-center cursor-pointer p-5 rounded-2xl bg-slate-800/60 hover:bg-slate-700/80 transition-all duration-300 border border-slate-600/50 hover:border-red-400 shadow-md">
+                    <h3 class="text-xl font-bold text-white flex items-center">
+                        <i data-lucide="gamepad" class="w-7 h-7 ml-3 text-red-400"></i>
                         סימולציות ומשחקים
                     </h3>
-                    <i id="simulations_icon" data-lucide="chevron-down" class="w-6 h-6 text-indigo-400 rotate-0"></i>
+                    <i id="simulations_icon" data-lucide="chevron-down" class="w-7 h-7 text-indigo-200 rotate-0"></i>
                 </div>
                 
-                <!-- תוכן קטגוריה: מוסתר כברירת מחדל -->
-                <div id="simulations_content" class="pt-4 hidden space-y-6">
+                <div id="simulations_content" class="pt-6 hidden space-y-6">
 
-                    <!-- קטגוריית משנה 1: DKA & HHS (מצבי חירום בסוכרת) -->
-                    <div class="bg-gray-800/30 p-4 rounded-xl border border-red-700/50 shadow-inner shadow-red-900/10">
-                        <!-- כותרת קטגוריית משנה ניתנת ללחיצה -->
+                    <!-- תת-קטגוריה: DKA -->
+                    <div class="bg-slate-900/60 p-6 rounded-2xl border border-red-500/30 shadow-inner">
                         <h4 id="dka_hhs_header" onclick="toggleSection('dka_hhs_content', 'dka_hhs_icon')" 
-                            class="text-xl font-bold text-red-300 mb-4 pb-2 border-b border-red-700 flex items-center justify-between cursor-pointer">
+                            class="text-xl font-bold text-red-300 mb-5 flex items-center justify-between cursor-pointer border-b border-red-500/20 pb-2">
                             <span class="flex items-center">
-                                <i data-lucide="heart-pulse" class="w-5 h-5 ml-2 text-red-400"></i>
+                                <i data-lucide="heart-pulse" class="w-6 h-6 ml-3 text-red-400"></i>
                                 DKA & HHS (מצבי חירום בסוכרת)
                             </span>
-                            <i id="dka_hhs_icon" data-lucide="chevron-down" class="w-5 h-5 text-red-400 rotate-0"></i>
+                            <i id="dka_hhs_icon" data-lucide="chevron-down" class="w-6 h-6 text-red-400 rotate-0"></i>
                         </h4>
-                        <!-- Internal Grid for DKA/HHS items (2 items) - מוסתר כברירת מחדל -->
-                        <div id="dka_hhs_content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 hidden"> 
-                            
-                            <!-- כרטיס: סרטון פתיחה למשחק מצבי חירום בסוכרת -->
-                            <a href="https://www.canva.com/design/DAG3frbbDmo/FD9Qey8uZdTDg7tYcq7QcA/watch?utm_content=DAG3frbbDmo&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h052350b6f8" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-red-500">
+                        <div id="dka_hhs_content" class="grid grid-cols-1 md:grid-cols-2 gap-5 hidden"> 
+                            <a href="https://www.canva.com/design/DAG3frbbDmo/FD9Qey8uZdTDg7tYcq7QcA/watch?utm_content=DAG3frbbDmo&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h052350b6f8" target="_blank" class="glass-panel hover-card p-5 rounded-xl block group">
                                 <div class="flex items-center mb-3">
-                                    <i data-lucide="video" class="w-6 h-6 ml-3 text-red-400"></i>
-                                    <h3 class="text-xl font-semibold text-white">סרטון פתיחה למשחק מצבי חירום בסוכרת</h3>
+                                    <i data-lucide="video" class="w-6 h-6 ml-2 text-red-400 group-hover:text-white transition-colors"></i>
+                                    <h3 class="font-bold text-white text-lg">סרטון פתיחה למשחק</h3>
                                 </div>
-                                <p class="text-sm text-indigo-300">סרטון המציג את תחילת משחק ה-DKA & HHS.</p>
+                                <p class="text-base text-slate-300 font-medium">תחילת משחק ה-DKA & HHS.</p>
                             </a>
-
-                            <!-- כרטיס: סימולציית DKA & HHS (המשחק עצמו) -->
-                            <a href="https://dka-hhs-clinical-sim.lovable.app" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-red-500">
+                            <a href="https://dka-hhs-clinical-sim.lovable.app" target="_blank" class="glass-panel hover-card p-5 rounded-xl block group">
                                 <div class="flex items-center mb-3">
-                                    <i data-lucide="activity" class="w-6 h-6 ml-3 text-red-400"></i>
-                                    <h3 class="text-xl font-semibold text-white">סימולציה קלינית: DKA & HHS</h3>
+                                    <i data-lucide="activity" class="w-6 h-6 ml-2 text-red-400 group-hover:text-white transition-colors"></i>
+                                    <h3 class="font-bold text-white text-lg">סימולציה קלינית</h3>
                                 </div>
-                                <p class="text-sm text-indigo-300">סימולציה אינטראקטיבית לתרגול מקרי HHS ו-DKA.</p>
+                                <p class="text-base text-slate-300 font-medium">תרגול אינטראקטיבי למקרי חירום.</p>
                             </a>
                         </div>
-                    </div> <!-- סוף קטגוריית משנה: DKA & HHS -->
+                    </div>
                     
-                    <!-- קטגוריית משנה 2: כף רגל סוכרתית -->
-                    <div class="bg-gray-800/30 p-4 rounded-xl border border-blue-700/50 shadow-inner shadow-blue-900/10">
-                        <!-- כותרת קטגוריית משנה ניתנת ללחיצה -->
+                    <!-- תת-קטגוריה: כף רגל -->
+                    <div class="bg-slate-900/60 p-6 rounded-2xl border border-blue-500/30 shadow-inner">
                         <h4 id="diabetic_foot_header" onclick="toggleSection('diabetic_foot_content', 'diabetic_foot_icon')" 
-                            class="text-xl font-bold text-blue-300 mb-4 pb-2 border-b border-blue-700 flex items-center justify-between cursor-pointer">
+                            class="text-xl font-bold text-blue-300 mb-5 flex items-center justify-between cursor-pointer border-b border-blue-500/20 pb-2">
                             <span class="flex items-center">
-                                <i data-lucide="footprints" class="w-5 h-5 ml-2 text-blue-400"></i>
+                                <i data-lucide="footprints" class="w-6 h-6 ml-3 text-blue-400"></i>
                                 כף רגל סוכרתית
                             </span>
-                            <i id="diabetic_foot_icon" data-lucide="chevron-down" class="w-5 h-5 text-blue-400 rotate-0"></i>
+                            <i id="diabetic_foot_icon" data-lucide="chevron-down" class="w-6 h-6 text-blue-400 rotate-0"></i>
                         </h4>
-                        <!-- Content for Diabetic Foot (Hidden by default) -->
-                        <div id="diabetic_foot_content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 hidden">
-                            
-                            <!-- כרטיס: סרטון פתיחה למשחק כף רגל סוכרתית (מוזז לכאן) -->
-                            <a href="https://www.canva.com/design/DAG3fXL_CrU/8H-jAOqsdb0J3M1f0tGxhQ/watch?utm_content=DAG3fXL_CrU&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hb976a209b2" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-blue-500">
+                        <div id="diabetic_foot_content" class="grid grid-cols-1 md:grid-cols-2 gap-5 hidden">
+                            <a href="https://www.canva.com/design/DAG3fXL_CrU/8H-jAOqsdb0J3M1f0tGxhQ/watch?utm_content=DAG3fXL_CrU&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hb976a209b2" target="_blank" class="glass-panel hover-card p-5 rounded-xl block group">
                                 <div class="flex items-center mb-3">
-                                    <i data-lucide="video" class="w-6 h-6 ml-3 text-blue-400"></i>
-                                    <h3 class="text-xl font-semibold text-white">סרטון פתיחה למשחק כף רגל סוכרתית</h3>
+                                    <i data-lucide="video" class="w-6 h-6 ml-2 text-blue-400 group-hover:text-white transition-colors"></i>
+                                    <h3 class="font-bold text-white text-lg">סרטון פתיחה</h3>
                                 </div>
-                                <p class="text-sm text-indigo-300">מבוא ויזואלי למשחק "הצילו את כף הרגל".</p>
+                                <p class="text-base text-slate-300 font-medium">מבוא למשחק "הצילו את כף הרגל".</p>
                             </a>
-
-                            <!-- כרטיס: משחק הצילו את כף הרגל (מוזז לכאן) -->
-                            <a href="https://foot-care-champion-game.lovable.app" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-indigo-500">
+                            <a href="https://foot-care-champion-game.lovable.app" target="_blank" class="glass-panel hover-card p-5 rounded-xl block group">
                                 <div class="flex items-center mb-3">
-                                    <i data-lucide="footprints" class="w-6 h-6 ml-3 text-indigo-400"></i>
-                                    <h3 class="text-xl font-semibold text-white">משחק: הצילו את כף הרגל</h3>
+                                    <i data-lucide="footprints" class="w-6 h-6 ml-2 text-indigo-400 group-hover:text-white transition-colors"></i>
+                                    <h3 class="font-bold text-white text-lg">משחק: הצילו את כף הרגל</h3>
                                 </div>
-                                <p class="text-sm text-indigo-300">משחק אינטראקטיבי ללימוד טיפול ומניעת פצעי כף רגל סוכרתית.</p>
+                                <p class="text-base text-slate-300 font-medium">משחק ללימוד מניעת פצעים.</p>
                             </a>
                         </div>
-                    </div> <!-- סוף קטגוריית משנה: כף רגל סוכרתית -->
+                    </div>
 
-                    <!-- קטגוריית משנה 3: אתגר אבחון הסוכרת (חדש) -->
-                    <div class="bg-gray-800/30 p-4 rounded-xl border border-yellow-700/50 shadow-inner shadow-yellow-900/10">
-                        <!-- כותרת קטגוריית משנה ניתנת ללחיצה -->
+                    <!-- תת-קטגוריה: אבחון סוכרת -->
+                    <div class="bg-slate-900/60 p-6 rounded-2xl border border-yellow-500/30 shadow-inner">
                         <h4 id="diagnosis_challenge_header" onclick="toggleSection('diagnosis_challenge_content', 'diagnosis_challenge_icon')" 
-                            class="text-xl font-bold text-yellow-300 mb-4 pb-2 border-b border-yellow-700 flex items-center justify-between cursor-pointer">
+                            class="text-xl font-bold text-yellow-200 mb-5 flex items-center justify-between cursor-pointer border-b border-yellow-500/20 pb-2">
                             <span class="flex items-center">
-                                <i data-lucide="pill" class="w-5 h-5 ml-2 text-yellow-400"></i>
+                                <i data-lucide="pill" class="w-6 h-6 ml-3 text-yellow-400"></i>
                                 אתגר אבחון הסוכרת
                             </span>
-                            <i id="diagnosis_challenge_icon" data-lucide="chevron-down" class="w-5 h-5 text-yellow-400 rotate-0"></i>
+                            <i id="diagnosis_challenge_icon" data-lucide="chevron-down" class="w-6 h-6 text-yellow-400 rotate-0"></i>
                         </h4>
-                        <!-- Content for Diagnosis Challenge (Hidden by default) -->
-                        <div id="diagnosis_challenge_content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 hidden">
-                            
-                            <!-- כרטיס: סרטון פתיחה לאתגר אבחון הסוכרת (חדש) -->
-                            <a href="https://www.canva.com/design/DAG3frPWn1k/7jzBbSKtRsrkio-NbruU-g/watch?utm_content=DAG3frPWn1k&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h085fde5e59" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-yellow-500">
+                        <div id="diagnosis_challenge_content" class="grid grid-cols-1 md:grid-cols-2 gap-5 hidden">
+                            <a href="https://www.canva.com/design/DAG3frPWn1k/7jzBbSKtRsrkio-NbruU-g/watch?utm_content=DAG3frPWn1k&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h085fde5e59" target="_blank" class="glass-panel hover-card p-5 rounded-xl block group">
                                 <div class="flex items-center mb-3">
-                                    <i data-lucide="video" class="w-6 h-6 ml-3 text-yellow-400"></i>
-                                    <h3 class="text-xl font-semibold text-white">סרטון פתיחה לאתגר אבחון הסוכרת</h3>
+                                    <i data-lucide="video" class="w-6 h-6 ml-2 text-yellow-400 group-hover:text-white transition-colors"></i>
+                                    <h3 class="font-bold text-white text-lg">סרטון פתיחה לאתגר</h3>
                                 </div>
-                                <p class="text-sm text-indigo-300">מבוא ויזואלי לאתגר האבחון.</p>
+                                <p class="text-base text-slate-300 font-medium">מבוא ויזואלי לאתגר האבחון.</p>
                             </a>
-
-                            <!-- כרטיס: אתגר אבחון הסוכרת (המשחק עצמו - מוזז לכאן) -->
-                            <a href="https://www.canva.com/design/DAGqEw-uB6M/hRGfSFRZcNrP8OF-twRGTg/view?utm_content=DAGqEw-uB6M&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hd2ed3668f0" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-purple-500">
+                            <a href="https://www.canva.com/design/DAGqEw-uB6M/hRGfSFRZcNrP8OF-twRGTg/view?utm_content=DAGqEw-uB6M&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hd2ed3668f0" target="_blank" class="glass-panel hover-card p-5 rounded-xl block group">
                                 <div class="flex items-center mb-3">
-                                    <i data-lucide="pill" class="w-6 h-6 ml-3 text-yellow-400"></i>
-                                    <h3 class="text-xl font-semibold text-white">אתגר אבחון הסוכרת</h3>
+                                    <i data-lucide="pill" class="w-6 h-6 ml-2 text-yellow-400 group-hover:text-white transition-colors"></i>
+                                    <h3 class="font-bold text-white text-lg">אתגר אבחון הסוכרת</h3>
                                 </div>
-                                <p class="text-sm text-indigo-300">משימה אינטראקטיבית לשיפור מיומנויות אבחון סוכרת.</p>
+                                <p class="text-base text-slate-300 font-medium">משימה אינטראקטיבית לשיפור מיומנויות.</p>
                             </a>
                         </div>
-                    </div> <!-- סוף קטגוריית משנה: אתגר אבחון הסוכרת -->
+                    </div>
 
-
-                    <!-- אתגרים שאינם משתייכים לאקורדיון (כעת רק היפוגליקמיה) -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-2">
-                        
-                        <!-- כרטיס: זיהוי סימפטומים של היפוגליקמיה (נשאר) -->
-                        <a href="https://hypoglycemia3.vercel.app" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-orange-500">
+                    <!-- היפוגליקמיה -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 pt-2">
+                        <a href="https://hypoglycemia3.vercel.app" target="_blank" class="glass-panel hover-card p-5 rounded-xl block group">
                             <div class="flex items-center mb-3">
-                                <i data-lucide="droplet" class="w-6 h-6 ml-3 text-orange-400"></i>
-                                <h3 class="text-xl font-semibold text-white">זיהוי סימפטומים של היפוגליקמיה</h3>
+                                <i data-lucide="droplet" class="w-6 h-6 ml-2 text-orange-400 group-hover:text-white transition-colors"></i>
+                                <h3 class="font-bold text-white text-lg">זיהוי סימפטומים</h3>
                             </div>
-                            <p class="text-sm text-indigo-300">משחק אינטראקטיבי לזיהוי סימפטומים המתרחשים במצב של היפוגליקמיה.</p>
+                            <p class="text-base text-slate-300 font-medium">משחק לזיהוי היפוגליקמיה.</p>
                         </a>
                     </div>
                 </div>
             </div>
 
-            <!-- 3. קטגוריה: מצגות וידיאו לימודיות (שם שונה) -->
+            <!-- 3. מצגות וידאו -->
             <div class="mb-6">
                 <div id="presentations_header" onclick="toggleSection('presentations_content', 'presentations_icon')" 
-                     class="flex justify-between items-center cursor-pointer p-3 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-b border-gray-700/50 hover:border-indigo-500 transition-colors duration-200">
-                    <h3 class="text-2xl font-semibold text-indigo-300 flex items-center">
-                        <i data-lucide="presentation" class="w-6 h-6 ml-3 text-blue-300"></i>
+                     class="flex justify-between items-center cursor-pointer p-5 rounded-2xl bg-slate-800/60 hover:bg-slate-700/80 transition-all duration-300 border border-slate-600/50 hover:border-blue-400 shadow-md">
+                    <h3 class="text-xl font-bold text-white flex items-center">
+                        <i data-lucide="presentation" class="w-7 h-7 ml-3 text-blue-400"></i>
                         מצגות וידיאו לימודיות
                     </h3>
-                    <i id="presentations_icon" data-lucide="chevron-down" class="w-6 h-6 text-indigo-400 rotate-0"></i>
+                    <i id="presentations_icon" data-lucide="chevron-down" class="w-7 h-7 text-indigo-200 rotate-0"></i>
                 </div>
 
-                <!-- תוכן קטגוריה: מוסתר כברירת מחדל -->
-                <div id="presentations_content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4 hidden">
-                    
-                    <!-- כרטיס: GCP -->
-                    <a href="https://www.canva.com/design/DAG3AjfLP50/OyuEa45CDkJwhE8tYqG5qw/watch?utm_content=DAG3AjfLP50&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h290cb7ba06" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-purple-500">
-                        <div class="flex items-center mb-3">
-                            <i data-lucide="square-stack" class="w-6 h-6 ml-3 text-green-400"></i>
-                            <h3 class="text-xl font-semibold text-white">GCP</h3>
+                <div id="presentations_content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-6 hidden">
+                    <a href="https://www.canva.com/design/DAG3AjfLP50/OyuEa45CDkJwhE8tYqG5qw/watch?utm_content=DAG3AjfLP50&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h290cb7ba06" target="_blank" class="glass-panel hover-card p-6 rounded-2xl block group">
+                        <div class="flex items-center mb-4">
+                            <div class="p-3 rounded-lg bg-green-600 text-white shadow-lg shadow-green-600/30">
+                                <i data-lucide="square-stack" class="w-6 h-6"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-white mr-4">GCP</h3>
                         </div>
-                        <p class="text-sm text-indigo-300">מצגת הדרכה על עקרונות GCP (Good Clinical Practice).</p>
+                        <p class="text-base text-slate-300 font-medium">מצגת הדרכה על עקרונות GCP.</p>
                     </a>
 
-                    <!-- כרטיס: האם מותר לצום שיש סוכרת? -->
-                    <a href="https://www.canva.com/design/DAG0BWR2IaA/U8OPTYX6k_gHynzR-aNbQA/watch?utm_content=DAG0BWR2IaA&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hbe505eb7e5" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-blue-500">
-                        <div class="flex items-center mb-3">
-                            <i data-lucide="help-circle" class="w-6 h-6 ml-3 text-blue-400"></i>
-                            <h3 class="text-xl font-semibold text-white">האם מותר לצום שיש סוכרת?</h3>
+                    <a href="https://www.canva.com/design/DAG0BWR2IaA/U8OPTYX6k_gHynzR-aNbQA/watch?utm_content=DAG0BWR2IaA&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hbe505eb7e5" target="_blank" class="glass-panel hover-card p-6 rounded-2xl block group">
+                        <div class="flex items-center mb-4">
+                            <div class="p-3 rounded-lg bg-blue-600 text-white shadow-lg shadow-blue-600/30">
+                                <i data-lucide="help-circle" class="w-6 h-6"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-white mr-4">האם מותר לצום?</h3>
                         </div>
-                        <p class="text-sm text-indigo-300">סרטון הסבר עם העקרונות החשובים לפני צום יום כיפור למטופל המתמודד עם סוכרת.</p>
+                        <p class="text-base text-slate-300 font-medium">עקרונות לצום עם סוכרת.</p>
                     </a>
 
-                    <!-- כרטיס חדש: האם סוכרת זה מצב הפיך? -->
-                    <a href="https://www.canva.com/design/DAGxqu2IPPY/WS9hGfXfCdrm778D_DXERA/watch?utm_content=DAGxqu2IPPY&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h44a0c68b09" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-cyan-500">
-                        <div class="flex items-center mb-3">
-                            <i data-lucide="refresh-cw" class="w-6 h-6 ml-3 text-cyan-400"></i>
-                            <h3 class="text-xl font-semibold text-white">האם סוכרת זה מצב הפיך?</h3>
+                    <a href="https://www.canva.com/design/DAGxqu2IPPY/WS9hGfXfCdrm778D_DXERA/watch?utm_content=DAGxqu2IPPY&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h44a0c68b09" target="_blank" class="glass-panel hover-card p-6 rounded-2xl block group">
+                        <div class="flex items-center mb-4">
+                            <div class="p-3 rounded-lg bg-cyan-600 text-white shadow-lg shadow-cyan-600/30">
+                                <i data-lucide="refresh-cw" class="w-6 h-6"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-white mr-4">האם סוכרת הפיכה?</h3>
                         </div>
-                        <!-- ללא תיאור, כבקשתך -->
+                        <p class="text-base text-slate-300 font-medium">האם אפשר להחלים מסוכרת?</p>
                     </a>
 
-                    <!-- כרטיס: השמנה היא לא בחירה! -->
-                    <a href="https://www.canva.com/design/DAG44syftCs/HF5dXYjbGoRl2IEtZUse7w/watch?utm_content=DAG44syftCs&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hce74a67c3d" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-pink-500">
-                        <div class="flex items-center mb-3">
-                            <i data-lucide="scale" class="w-6 h-6 ml-3 text-pink-400"></i>
-                            <h3 class="text-xl font-semibold text-white">השמנה היא לא בחירה!</h3>
+                    <a href="https://www.canva.com/design/DAG44syftCs/HF5dXYjbGoRl2IEtZUse7w/watch?utm_content=DAG44syftCs&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hce74a67c3d" target="_blank" class="glass-panel hover-card p-6 rounded-2xl block group">
+                        <div class="flex items-center mb-4">
+                            <div class="p-3 rounded-lg bg-pink-600 text-white shadow-lg shadow-pink-600/30">
+                                <i data-lucide="scale" class="w-6 h-6"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-white mr-4">השמנה אינה בחירה!</h3>
                         </div>
-                        <p class="text-sm text-indigo-300">הסבר על מורכבות מחלת ההשמנה.</p>
+                        <p class="text-base text-slate-300 font-medium">מורכבות מחלת ההשמנה.</p>
                     </a>
                 </div>
             </div>
 
-            <!-- 4. קטגוריה: סרטוני הדרכה -->
+            <!-- 4. סרטוני הדרכה -->
             <div class="mb-6">
                 <div id="videos_header" onclick="toggleSection('videos_content', 'videos_icon')" 
-                     class="flex justify-between items-center cursor-pointer p-3 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-b border-gray-700/50 hover:border-indigo-500 transition-colors duration-200">
-                    <h3 class="text-2xl font-semibold text-indigo-300 flex items-center">
-                        <i data-lucide="film" class="w-6 h-6 ml-3 text-amber-300"></i>
+                     class="flex justify-between items-center cursor-pointer p-5 rounded-2xl bg-slate-800/60 hover:bg-slate-700/80 transition-all duration-300 border border-slate-600/50 hover:border-amber-400 shadow-md">
+                    <h3 class="text-xl font-bold text-white flex items-center">
+                        <i data-lucide="film" class="w-7 h-7 ml-3 text-amber-400"></i>
                         סרטוני הדרכה
                     </h3>
-                    <i id="videos_icon" data-lucide="chevron-down" class="w-6 h-6 text-indigo-400 rotate-0"></i>
+                    <i id="videos_icon" data-lucide="chevron-down" class="w-7 h-7 text-indigo-200 rotate-0"></i>
                 </div>
 
-                <!-- תוכן קטגוריה: מוסתר כברירת מחדל -->
-                <div id="videos_content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4 hidden">
+                <div id="videos_content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-6 hidden">
+                    <a href="https://www.canva.com/design/DAG3exU1M8Y/Gm4cah-5orakef5tqIq-tA/watch?utm_content=DAG3exU1M8Y&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h688989d83d" target="_blank" class="glass-panel hover-card p-6 rounded-2xl block group">
+                        <div class="flex items-center mb-4">
+                            <div class="p-3 rounded-lg bg-yellow-500 text-white shadow-lg shadow-yellow-500/30">
+                                <i data-lucide="map" class="w-6 h-6"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-white mr-4">מטיילים עם סוכרת 1</h3>
+                        </div>
+                        <p class="text-base text-slate-300 font-medium">מדריך וידאו קצר לטיולים.</p>
+                    </a>
+
+                    <a href="https://www.canva.com/design/DAGvE2pLmps/VxwQJsMaaTmlLLJWnd5cRA/watch?utm_content=DAGvE2pLmps&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h19feb76189" target="_blank" class="glass-panel hover-card p-6 rounded-2xl block group">
+                        <div class="flex items-center mb-4">
+                            <div class="p-3 rounded-lg bg-indigo-600 text-white shadow-lg shadow-indigo-600/30">
+                                <i data-lucide="plane" class="w-6 h-6"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-white mr-4">טיפים לטיול 2</h3>
+                        </div>
+                        <p class="text-base text-slate-300 font-medium">בדגש על סוכרת סוג 2</p>
+                    </a>
                     
-                    <!-- כרטיס: מטיילים עם הסוכרת 1 -->
-                    <a href="https://www.canva.com/design/DAG3exU1M8Y/Gm4cah-5orakef5tqIq-tA/watch?utm_content=DAG3exU1M8Y&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h688989d83d" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-yellow-500">
-                        <div class="flex items-center mb-3">
-                            <i data-lucide="map" class="w-6 h-6 ml-3 text-yellow-400"></i>
-                            <h3 class="text-xl font-semibold text-white">מטיילים עם הסוכרת 1</h3>
+                    <a href="https://www.canva.com/design/DAG2YtWcHh8/3xHB4cnVjYb5cwbt1CMi3g/watch?utm_content=DAG2YtWcHh8&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h2f57ae08d7" target="_blank" class="glass-panel hover-card p-6 rounded-2xl block group">
+                        <div class="flex items-center mb-4">
+                            <div class="p-3 rounded-lg bg-green-600 text-white shadow-lg shadow-green-600/30">
+                                <i data-lucide="thermometer" class="w-6 h-6"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-white mr-4">Libre 2 Plus</h3>
                         </div>
-                        <p class="text-sm text-indigo-300">מדריך וידאו קצר לאנשים עם סוכרת היוצאים לטיולים ונסיעות.</p>
+                        <p class="text-base text-slate-300 font-medium">AI ונתונים ב-CGM.</p>
                     </a>
 
-                    <!-- כרטיס חדש: טיפים לטיול עם סוכרת 2 -->
-                    <a href="https://www.canva.com/design/DAGvE2pLmps/VxwQJsMaaTmlLLJWnd5cRA/watch?utm_content=DAGvE2pLmps&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h19feb76189" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-indigo-500">
-                        <div class="flex items-center mb-3">
-                            <i data-lucide="plane" class="w-6 h-6 ml-3 text-indigo-400"></i>
-                            <h3 class="text-xl font-semibold text-white">טיפים לטיול עם סוכרת 2</h3>
+                    <a href="https://www.canva.com/design/DAGzC6hqYtw/JBfKW2GZR8sTIoeTa7K9qQ/watch?utm_content=DAGzC6hqYtw&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h97c8b9bda5" target="_blank" class="glass-panel hover-card p-6 rounded-2xl block group">
+                        <div class="flex items-center mb-4">
+                            <div class="p-3 rounded-lg bg-red-600 text-white shadow-lg shadow-red-600/30">
+                                <i data-lucide="cake" class="w-6 h-6"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-white mr-4">טיפים לראש השנה</h3>
                         </div>
-                        <p class="text-sm text-indigo-300">בדגש על סוכרת סוג 2</p>
-                    </a>
-                    
-                    <!-- כרטיס: Libre 2 Plus (קשר ל-AI ו-CGM) - הקישור עודכן כאן -->
-                    <a href="https://www.canva.com/design/DAG2YtWcHh8/3xHB4cnVjYb5cwbt1CMi3g/watch?utm_content=DAG2YtWcHh8&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h2f57ae08d7" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-green-500">
-                        <div class="flex items-center mb-3">
-                            <i data-lucide="thermometer" class="w-6 h-6 ml-3 text-green-400"></i>
-                            <h3 class="text-xl font-semibold text-white">Libre 2 Plus</h3>
-                        </div>
-                        <p class="text-sm text-indigo-300">הקשר בין בינה מלאכותית לנתונים הנאספים במכשירי CGM.</p>
+                        <p class="text-base text-slate-300 font-medium">למטופלים עם סוכרת.</p>
                     </a>
 
-                    <!-- כרטיס: טיפים לקראת חג ראש השנה (עם תיאור) -->
-                    <a href="https://www.canva.com/design/DAGzC6hqYtw/JBfKW2GZR8sTIoeTa7K9qQ/watch?utm_content=DAGzC6hqYtw&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h97c8b9bda5" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-red-300">
-                        <div class="flex items-center mb-3">
-                            <i data-lucide="cake" class="w-6 h-6 ml-3 text-red-400"></i>
-                            <h3 class="text-xl font-semibold text-white">טיפים לקראת חג ראש השנה</h3>
+                    <a href="https://www.canva.com/design/DAG4g6-9o1U/MzhfyuCHjRHEcFT47sJHtg/watch?utm_content=DAG4g6-9o1U&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h6694d19657" target="_blank" class="glass-panel hover-card p-6 rounded-2xl block group">
+                        <div class="flex items-center mb-4">
+                            <div class="p-3 rounded-lg bg-purple-600 text-white shadow-lg shadow-purple-600/30">
+                                <i data-lucide="help-circle" class="w-6 h-6"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-white mr-4">כמה סוגי סוכרת?</h3>
                         </div>
-                        <p class="text-sm text-indigo-300">למטופלים המתמודדים עם סוכרת.</p>
-                    </a>
-
-                    <!-- כרטיס חדש: כמה סוגי סוכרת אתם מכירים? -->
-                    <a href="https://www.canva.com/design/DAG4g6-9o1U/MzhfyuCHjRHEcFT47sJHtg/watch?utm_content=DAG4g6-9o1U&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h6694d19657" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-purple-500">
-                        <div class="flex items-center mb-3">
-                            <i data-lucide="help-circle" class="w-6 h-6 ml-3 text-purple-400"></i>
-                            <h3 class="text-xl font-semibold text-white">כמה סוגי סוכרת אתם מכירים?</h3>
-                        </div>
-                        <p class="text-sm text-indigo-300">סרטון הסבר על סוגי הסוכרת השונים.</p>
+                        <p class="text-base text-slate-300 font-medium">הסבר על סוגי הסוכרת השונים.</p>
                     </a>
                 </div>
             </div>
 
-            <!-- 5. קטגוריה: סרטוני הדרכה על שימוש בכלי AI (חדש) -->
+            <!-- 5. סרטוני הדרכה AI -->
             <div class="mb-6">
                 <div id="ai_tutorials_header" onclick="toggleSection('ai_tutorials_content', 'ai_tutorials_icon')" 
-                     class="flex justify-between items-center cursor-pointer p-3 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-b border-gray-700/50 hover:border-indigo-500 transition-colors duration-200">
-                    <h3 class="text-2xl font-semibold text-indigo-300 flex items-center">
-                        <i data-lucide="terminal" class="w-6 h-6 ml-3 text-emerald-300"></i>
+                     class="flex justify-between items-center cursor-pointer p-5 rounded-2xl bg-slate-800/60 hover:bg-slate-700/80 transition-all duration-300 border border-slate-600/50 hover:border-emerald-400 shadow-md">
+                    <h3 class="text-xl font-bold text-white flex items-center">
+                        <i data-lucide="terminal" class="w-7 h-7 ml-3 text-emerald-400"></i>
                         סרטוני הדרכה על שימוש בכלי AI
                     </h3>
-                    <i id="ai_tutorials_icon" data-lucide="chevron-down" class="w-6 h-6 text-indigo-400 rotate-0"></i>
+                    <i id="ai_tutorials_icon" data-lucide="chevron-down" class="w-7 h-7 text-indigo-200 rotate-0"></i>
                 </div>
 
-                <!-- תוכן קטגוריה: מוסתר כברירת מחדל, כרגע ללא כרטיסים -->
-                <div id="ai_tutorials_content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-4 hidden">
-                    <!-- כרטיס חדש: QuizGPT -->
-                    <a href="https://www.canva.com/design/DAGxM6L6NYs/76-1R-VejrGjK0UcGO0oiw/watch?utm_content=DAGxM6L6NYs&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h942744c527" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-emerald-500">
-                        <div class="flex items-center mb-3">
-                            <i data-lucide="graduation-cap" class="w-6 h-6 ml-3 text-emerald-400"></i>
-                            <h3 class="text-xl font-semibold text-white">QuizGPT</h3>
+                <div id="ai_tutorials_content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-6 hidden">
+                    <a href="https://www.canva.com/design/DAGxM6L6NYs/76-1R-VejrGjK0UcGO0oiw/watch?utm_content=DAGxM6L6NYs&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h942744c527" target="_blank" class="glass-panel hover-card p-6 rounded-2xl block group">
+                        <div class="flex items-center mb-4">
+                            <div class="p-3 rounded-lg bg-emerald-600 text-white shadow-lg shadow-emerald-600/30">
+                                <i data-lucide="graduation-cap" class="w-6 h-6"></i>
+                            </div>
+                            <h3 class="text-lg font-bold text-white mr-4">QuizGPT</h3>
                         </div>
-                        <p class="text-sm text-indigo-300">איך להפוך נוהל לחידון אינטראקטיבי?</p>
+                        <p class="text-base text-slate-300 font-medium">איך להפוך נוהל לחידון אינטראקטיבי?</p>
                     </a>
                 </div>
             </div>
 
-            <!-- 6. קטגוריה: סדנאות והרצאות (עודכן עם תת-קטגוריה) -->
+            <!-- 6. סדנאות והרצאות -->
             <div class="mb-6">
                 <div id="workshops_header" onclick="toggleSection('workshops_content', 'workshops_icon')" 
-                     class="flex justify-between items-center cursor-pointer p-3 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-b border-gray-700/50 hover:border-indigo-500 transition-colors duration-200">
-                    <h3 class="text-2xl font-semibold text-indigo-300 flex items-center">
-                        <i data-lucide="mic-vocal" class="w-6 h-6 ml-3 text-pink-300"></i>
+                     class="flex justify-between items-center cursor-pointer p-5 rounded-2xl bg-slate-800/60 hover:bg-slate-700/80 transition-all duration-300 border border-slate-600/50 hover:border-pink-400 shadow-md">
+                    <h3 class="text-xl font-bold text-white flex items-center">
+                        <i data-lucide="mic-vocal" class="w-7 h-7 ml-3 text-pink-400"></i>
                         סדנאות והרצאות
                     </h3>
-                    <i id="workshops_icon" data-lucide="chevron-down" class="w-6 h-6 text-indigo-400 rotate-0"></i>
+                    <i id="workshops_icon" data-lucide="chevron-down" class="w-7 h-7 text-indigo-200 rotate-0"></i>
                 </div>
 
-                <!-- תוכן קטגוריה: מוסתר כברירת מחדל -->
-                <div id="workshops_content" class="pt-4 hidden space-y-6">
+                <div id="workshops_content" class="pt-6 hidden space-y-6">
                     
-                    <!-- תת-קטגוריה חדשה: סדנת בינה מלאכותית למדריכות קליניות -->
-                    <div class="bg-gray-800/30 p-4 rounded-xl border border-pink-700/50 shadow-inner shadow-pink-900/10">
+                    <div class="bg-slate-900/60 p-6 rounded-2xl border border-pink-500/30 shadow-inner">
                         <h4 id="ai_workshop_header" onclick="toggleSection('ai_workshop_content', 'ai_workshop_icon')" 
-                            class="text-xl font-bold text-pink-300 mb-4 pb-2 border-b border-pink-700 flex items-center justify-between cursor-pointer">
+                            class="text-xl font-bold text-pink-300 mb-5 flex items-center justify-between cursor-pointer border-b border-pink-500/20 pb-2">
                             <span class="flex items-center">
-                                <i data-lucide="bot" class="w-5 h-5 ml-2 text-pink-400"></i>
-                                סדנת בינה מלאכותית למדריכות קליניות
+                                <i data-lucide="bot" class="w-6 h-6 ml-3 text-pink-400"></i>
+                                סדנת בינה מלאכותית למדריכות
                             </span>
-                            <i id="ai_workshop_icon" data-lucide="chevron-down" class="w-5 h-5 text-pink-400 rotate-0"></i>
+                            <i id="ai_workshop_icon" data-lucide="chevron-down" class="w-6 h-6 text-pink-400 rotate-0"></i>
                         </h4>
                         
-                        <!-- תוכן תת-קטגוריה: מוסתר כברירת מחדל -->
-                        <div id="ai_workshop_content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 hidden">
-                            
-                            <!-- כרטיס: בינה מלאכותית למדריכות קליניות יצאה לדרך -->
-                            <a href="https://www.canva.com/design/DAGx_i3-gH4/05X2yi72AbB-6EHBtIzG4w/watch?utm_content=DAGx_i3-gH4&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hdc0d610e8b" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-purple-500">
+                        <div id="ai_workshop_content" class="grid grid-cols-1 md:grid-cols-2 gap-5 hidden">
+                            <a href="https://www.canva.com/design/DAGx_i3-gH4/05X2yi72AbB-6EHBtIzG4w/watch?utm_content=DAGx_i3-gH4&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hdc0d610e8b" target="_blank" class="glass-panel hover-card p-5 rounded-xl block group">
                                 <div class="flex items-center mb-3">
-                                    <i data-lucide="square-stack" class="w-6 h-6 ml-3 text-green-400"></i>
-                                    <h3 class="text-xl font-semibold text-white">בינה מלאכותית למדריכות קליניות יצאה לדרך</h3>
+                                    <i data-lucide="square-stack" class="w-6 h-6 ml-2 text-green-400 group-hover:text-white transition-colors"></i>
+                                    <h3 class="font-bold text-white text-lg">בינה מלאכותית יצאה לדרך</h3>
                                 </div>
-                                <p class="text-sm text-indigo-300">חזון וכלים לשילוב AI בהדרכה קלינית לאחיות.</p>
+                                <p class="text-base text-slate-300 font-medium">חזון וכלים למדריכות קליניות.</p>
                             </a>
 
-                            <!-- כרטיס: סיום סדנת AI לאחיות מדריכות קליניות -->
-                            <a href="https://www.canva.com/design/DAG3ffyroQo/K1kR_4hA46kkLzHMhZA3pw/watch?utm_content=DAG3ffyroQo&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=haa2c719820" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-pink-500">
+                            <a href="https://www.canva.com/design/DAG3ffyroQo/K1kR_4hA46kkLzHMhZA3pw/watch?utm_content=DAG3ffyroQo&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=haa2c719820" target="_blank" class="glass-panel hover-card p-5 rounded-xl block group">
                                 <div class="flex items-center mb-3">
-                                    <i data-lucide="check-circle" class="w-6 h-6 ml-3 text-pink-400"></i>
-                                    <h3 class="text-xl font-semibold text-white">סיום סדנת AI לאחיות מדריכות קליניות</h3>
+                                    <i data-lucide="check-circle" class="w-6 h-6 ml-2 text-pink-400 group-hover:text-white transition-colors"></i>
+                                    <h3 class="font-bold text-white text-lg">סיום סדנת AI</h3>
                                 </div>
-                                <p class="text-sm text-indigo-300">הצגת תוצרי סיום סדנת בינה מלאכותית למדריכות קליניות.</p>
+                                <p class="text-base text-slate-300 font-medium">תוצרי סיום הסדנה.</p>
                             </a>
-                            
                         </div>
                     </div>
 
-                    <!-- כרטיס חדש: מטפלים בעידן הבינה המלאכותית -->
+                    <!-- הרצאה מכנס -->
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <a href="https://www.canva.com/design/DAG5dP-mUy4/DYI5zIAXFvyOi8eVc8k2lg/view?utm_content=DAG5dP-mUy4&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h0937dc62c6" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-purple-500">
-                            <div class="flex items-center mb-3">
-                                <i data-lucide="presentation" class="w-6 h-6 ml-3 text-purple-400"></i>
-                                <h3 class="text-xl font-semibold text-white">מטפלים בעידן הבינה המלאכותית</h3>
+                        <a href="https://www.canva.com/design/DAG5dP-mUy4/DYI5zIAXFvyOi8eVc8k2lg/view?utm_content=DAG5dP-mUy4&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h0937dc62c6" target="_blank" class="glass-panel hover-card p-6 rounded-2xl block group">
+                            <div class="flex items-center mb-4">
+                                <div class="p-3 rounded-lg bg-purple-600 text-white shadow-lg shadow-purple-600/30">
+                                    <i data-lucide="presentation" class="w-6 h-6"></i>
+                                </div>
+                                <h3 class="text-lg font-bold text-white mr-4">מטפלים בעידן ה-AI</h3>
                             </div>
-                            <p class="text-sm text-indigo-300">הרצאה מתוך כנס סוכרת ירושלים 10.11.25</p>
+                            <p class="text-base text-slate-300 font-medium">הרצאה מכנס סוכרת ירושלים 10.11.25</p>
                         </a>
                     </div>
-
                 </div>
             </div>
             
-            <!-- 7. קטגוריה: כנסים (חדש) -->
+            <!-- 7. כנסים -->
             <div class="mb-6">
                 <div id="conferences_header" onclick="toggleSection('conferences_content', 'conferences_icon')" 
-                     class="flex justify-between items-center cursor-pointer p-3 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-b border-gray-700/50 hover:border-indigo-500 transition-colors duration-200">
-                    <h3 class="text-2xl font-semibold text-indigo-300 flex items-center">
-                        <i data-lucide="users" class="w-6 h-6 ml-3 text-fuchsia-300"></i>
+                     class="flex justify-between items-center cursor-pointer p-5 rounded-2xl bg-slate-800/60 hover:bg-slate-700/80 transition-all duration-300 border border-slate-600/50 hover:border-fuchsia-400 shadow-md">
+                    <h3 class="text-xl font-bold text-white flex items-center">
+                        <i data-lucide="users" class="w-7 h-7 ml-3 text-fuchsia-400"></i>
                         כנסים
                     </h3>
-                    <i id="conferences_icon" data-lucide="chevron-down" class="w-6 h-6 text-indigo-400 rotate-0"></i>
+                    <i id="conferences_icon" data-lucide="chevron-down" class="w-7 h-7 text-indigo-200 rotate-0"></i>
                 </div>
 
-                <!-- תוכן קטגוריה: מוסתר כברירת מחדל -->
-                <div id="conferences_content" class="pt-4 hidden space-y-4">
+                <div id="conferences_content" class="pt-6 hidden space-y-4">
                     
-                    <!-- קטגוריית משנה 1: כנס הסוכרת בירושלים (ניתן ללחיצה) -->
-                    <div class="bg-gray-800/30 p-4 rounded-xl border border-fuchsia-700/50 shadow-inner shadow-fuchsia-900/10">
+                    <div class="bg-slate-900/60 p-6 rounded-2xl border border-fuchsia-500/30 shadow-inner">
                         <h4 id="conf_challenge_header" onclick="toggleSection('conf_challenge_content', 'conf_challenge_icon')" 
-                            class="text-xl font-bold text-fuchsia-300 mb-2 pb-2 border-b border-fuchsia-700 flex items-center justify-between cursor-pointer">
+                            class="text-xl font-bold text-fuchsia-300 mb-3 flex items-center justify-between cursor-pointer border-b border-fuchsia-500/20 pb-2">
                             <span class="flex items-center">
-                                <i data-lucide="calendar-check" class="w-5 h-5 ml-2 text-fuchsia-400"></i>
-                                סוכרת במציאות משתנה, אתגרים פריצות דרך וחדשנות
+                                <i data-lucide="calendar-check" class="w-6 h-6 ml-3 text-fuchsia-400"></i>
+                                סוכרת במציאות משתנה
                             </span>
-                            <i id="conf_challenge_icon" data-lucide="chevron-down" class="w-5 h-5 text-fuchsia-400 rotate-0"></i>
+                            <i id="conf_challenge_icon" data-lucide="chevron-down" class="w-6 h-6 text-fuchsia-400 rotate-0"></i>
                         </h4>
-                        <!-- כיתוב הוסף כאן -->
-                        <p class="text-sm text-fuchsia-400 mb-4">כנס הסוכרת לצוותים רפואיים בירושלים 10.11.25</p>
+                        <p class="text-base text-slate-400 mb-5">כנס סוכרת ירושלים 10.11.25</p>
                         
-                        <!-- Internal Grid for Conference challenge items (Hidden by default) -->
-                        <div id="conf_challenge_content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 hidden">
-                            <!-- כרטיס 1: אתר האתגר האינטראקטיבי של הכנס -->
-                            <a href="https://diabetes-challenge.vercel.app" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-fuchsia-500">
+                        <div id="conf_challenge_content" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 hidden">
+                            <a href="https://diabetes-challenge.vercel.app" target="_blank" class="glass-panel hover-card p-5 rounded-xl block group">
                                 <div class="flex items-center mb-3">
-                                    <i data-lucide="monitor" class="w-6 h-6 ml-3 text-fuchsia-400"></i>
-                                    <h3 class="text-xl font-semibold text-white">אתר האתגר האינטראקטיבי של הכנס</h3>
+                                    <i data-lucide="monitor" class="w-6 h-6 ml-2 text-fuchsia-400 group-hover:text-white transition-colors"></i>
+                                    <h3 class="font-bold text-white text-lg">אתר האתגר האינטראקטיבי</h3>
                                 </div>
-                                <p class="text-sm text-indigo-300">כנס הסוכרת בירושלים 10.11.25</p>
                             </a>
 
-                            <!-- כרטיס 2: Save the date -->
-                            <a href="https://www.canva.com/design/DAGw7IBCdCo/YNJbky7KxX6wrWEBQnAp_Q/watch?utm_content=DAGw7IBCdCo&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hd1f5b6ed09" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-pink-500">
+                            <a href="https://www.canva.com/design/DAGw7IBCdCo/YNJbky7KxX6wrWEBQnAp_Q/watch?utm_content=DAGw7IBCdCo&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hd1f5b6ed09" target="_blank" class="glass-panel hover-card p-5 rounded-xl block group">
                                 <div class="flex items-center mb-3">
-                                    <i data-lucide="bell" class="w-6 h-6 ml-3 text-pink-400"></i>
-                                    <h3 class="text-xl font-semibold text-white">Save the date כנס הסוכרת בירושלים 10.11.25</h3>
+                                    <i data-lucide="bell" class="w-6 h-6 ml-2 text-pink-400 group-hover:text-white transition-colors"></i>
+                                    <h3 class="font-bold text-white text-lg">Save the date</h3>
                                 </div>
-                                <p class="text-sm text-indigo-300">הכרזה רשמית ופרסום האירוע.</p>
                             </a>
                             
-                             <!-- כרטיס 3 (חדש): תוכנית הכנס -->
-                            <a href="https://www.canva.com/design/DAG23mXFaDA/XE_2_e39zjc6y3BD32Iymw/watch?utm_content=DAG23mXFaDA&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h9eb11cb173" target="_blank" class="card block p-5 rounded-xl bg-gray-800/50 hover:bg-gray-700/60 border-2 border-transparent hover:border-green-500">
+                            <a href="https://www.canva.com/design/DAG23mXFaDA/XE_2_e39zjc6y3BD32Iymw/watch?utm_content=DAG23mXFaDA&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=h9eb11cb173" target="_blank" class="glass-panel hover-card p-5 rounded-xl block group">
                                 <div class="flex items-center mb-3">
-                                    <i data-lucide="list-checks" class="w-6 h-6 ml-3 text-green-400"></i>
-                                    <h3 class="text-xl font-semibold text-white">תוכנית הכנס</h3>
+                                    <i data-lucide="list-checks" class="w-6 h-6 ml-2 text-green-400 group-hover:text-white transition-colors"></i>
+                                    <h3 class="font-bold text-white text-lg">תוכנית הכנס</h3>
                                 </div>
-                                <p class="text-sm text-indigo-300">מצגת מפורטת של סדר היום והמרצים.</p>
                             </a>
                         </div>
-                    </div> <!-- סוף קטגוריית משנה: כנס הסוכרת בירושלים -->
+                    </div>
 
                 </div>
             </div>
@@ -737,106 +721,99 @@
         </section>
 
         <!-- קטע 2: קישורים לכלי AI מומלצים -->
-        <section class="p-6 rounded-3xl bg-gray-900/40 border border-indigo-700/50 backdrop-blur-md shadow-2xl shadow-indigo-900/20">
-            <h2 class="text-3xl font-bold mb-8 pb-3 border-b border-indigo-600 flex items-center section-title">
-                <i data-lucide="tool" class="w-7 h-7 ml-3 text-cyan-400"></i>
+        <section class="p-8 rounded-3xl glass-panel reveal">
+            <h2 class="text-3xl font-extrabold mb-8 pb-4 border-b border-cyan-500/30 flex items-center text-cyan-200">
+                <i data-lucide="tool" class="w-9 h-9 ml-3 text-cyan-400"></i>
                 קישורים לכלי AI מומלצים
             </h2>
 
-            <!-- רשת גמישה (5 עמודות בדסקטופ) -->
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-
-                <!-- 1. כלי שיחה/טקסט -->
-                <a href="https://chatgpt.com" target="_blank" class="card block p-3 rounded-lg bg-gray-800/50 hover:bg-gray-700/60 border border-transparent hover:border-cyan-500 text-center text-sm font-medium">
-                    <i data-lucide="message-square" class="w-5 h-5 mx-auto mb-1 text-blue-400"></i>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-5">
+                <a href="https://chatgpt.com" target="_blank" class="glass-panel hover-card p-4 rounded-xl text-center text-base font-bold text-slate-200 block hover:text-white group">
+                    <i data-lucide="message-square" class="w-7 h-7 mx-auto mb-2 text-blue-400 group-hover:text-white transition-colors"></i>
                     ChatGPT
                 </a>
-                <a href="https://gemini.google.com" target="_blank" class="card block p-3 rounded-lg bg-gray-800/50 hover:bg-gray-700/60 border border-transparent hover:border-cyan-500 text-center text-sm font-medium">
-                    <i data-lucide="gem" class="w-5 h-5 mx-auto mb-1 text-blue-400"></i>
+                <a href="https://gemini.google.com" target="_blank" class="glass-panel hover-card p-4 rounded-xl text-center text-base font-bold text-slate-200 block hover:text-white group">
+                    <i data-lucide="gem" class="w-7 h-7 mx-auto mb-2 text-blue-400 group-hover:text-white transition-colors"></i>
                     Gemini
                 </a>
-                <a href="https://copilot.microsoft.com" target="_blank" class="card block p-3 rounded-lg bg-gray-800/50 hover:bg-gray-700/60 border border-transparent hover:border-cyan-500 text-center text-sm font-medium">
-                    <i data-lucide="zap" class="w-5 h-5 mx-auto mb-1 text-blue-400"></i>
+                <a href="https://copilot.microsoft.com" target="_blank" class="glass-panel hover-card p-4 rounded-xl text-center text-base font-bold text-slate-200 block hover:text-white group">
+                    <i data-lucide="zap" class="w-7 h-7 mx-auto mb-2 text-blue-400 group-hover:text-white transition-colors"></i>
                     Copilot
                 </a>
-                <a href="https://notebooklm.google.com" target="_blank" class="card block p-3 rounded-lg bg-gray-800/50 hover:bg-gray-700/60 border border-transparent hover:border-cyan-500 text-center text-sm font-medium">
-                    <i data-lucide="book-open-text" class="w-5 h-5 mx-auto mb-1 text-blue-400"></i>
+                <a href="https://notebooklm.google.com" target="_blank" class="glass-panel hover-card p-4 rounded-xl text-center text-base font-bold text-slate-200 block hover:text-white group">
+                    <i data-lucide="book-open-text" class="w-7 h-7 mx-auto mb-2 text-blue-400 group-hover:text-white transition-colors"></i>
                     NotebookLM
                 </a>
-                <a href="https://aistudio.google.com" target="_blank" class="card block p-3 rounded-lg bg-gray-800/50 hover:bg-gray-700/60 border border-transparent hover:border-cyan-500 text-center text-sm font-medium">
-                    <i data-lucide="brain" class="w-5 h-5 mx-auto mb-1 text-blue-400"></i>
+                <a href="https://aistudio.google.com" target="_blank" class="glass-panel hover-card p-4 rounded-xl text-center text-base font-bold text-slate-200 block hover:text-white group">
+                    <i data-lucide="brain" class="w-7 h-7 mx-auto mb-2 text-blue-400 group-hover:text-white transition-colors"></i>
                     AI Studio
                 </a>
 
-                <!-- 2. יצירת תמונות/אמנות -->
-                <a href="https://app.leonardo.ai" target="_blank" class="card block p-3 rounded-lg bg-gray-800/50 hover:bg-gray-700/60 border border-transparent hover:border-cyan-500 text-center text-sm font-medium">
-                    <i data-lucide="palette" class="w-5 h-5 mx-auto mb-1 text-pink-400"></i>
+                <a href="https://app.leonardo.ai" target="_blank" class="glass-panel hover-card p-4 rounded-xl text-center text-base font-bold text-slate-200 block hover:text-white group">
+                    <i data-lucide="palette" class="w-7 h-7 mx-auto mb-2 text-pink-400 group-hover:text-white transition-colors"></i>
                     Leonardo AI
                 </a>
-                <a href="https://ideogram.ai" target="_blank" class="card block p-3 rounded-lg bg-gray-800/50 hover:bg-gray-700/60 border border-transparent hover:border-cyan-500 text-center text-sm font-medium">
-                    <i data-lucide="sparkles" class="w-5 h-5 mx-auto mb-1 text-pink-400"></i>
+                <a href="https://ideogram.ai" target="_blank" class="glass-panel hover-card p-4 rounded-xl text-center text-base font-bold text-slate-200 block hover:text-white group">
+                    <i data-lucide="sparkles" class="w-7 h-7 mx-auto mb-2 text-pink-400 group-hover:text-white transition-colors"></i>
                     Ideogram
                 </a>
-                <a href="https://firefly.adobe.com" target="_blank" class="card block p-3 rounded-lg bg-gray-800/50 hover:bg-gray-700/60 border border-transparent hover:border-cyan-500 text-center text-sm font-medium">
-                    <i data-lucide="image" class="w-5 h-5 mx-auto mb-1 text-pink-400"></i>
+                <a href="https://firefly.adobe.com" target="_blank" class="glass-panel hover-card p-4 rounded-xl text-center text-base font-bold text-slate-200 block hover:text-white group">
+                    <i data-lucide="image" class="w-7 h-7 mx-auto mb-2 text-pink-400 group-hover:text-white transition-colors"></i>
                     Adobe Firefly
                 </a>
-                <a href="https://www.canva.com" target="_blank" class="card block p-3 rounded-lg bg-gray-800/50 hover:bg-gray-700/60 border border-transparent hover:border-cyan-500 text-center text-sm font-medium">
-                    <i data-lucide="square-stack" class="w-5 h-5 mx-auto mb-1 text-pink-400"></i>
+                <a href="https://www.canva.com" target="_blank" class="glass-panel hover-card p-4 rounded-xl text-center text-base font-bold text-slate-200 block hover:text-white group">
+                    <i data-lucide="square-stack" class="w-7 h-7 mx-auto mb-2 text-pink-400 group-hover:text-white transition-colors"></i>
                     Canva (AI)
                 </a>
-                <a href="https://www.remove.bg/upload" target="_blank" class="card block p-3 rounded-lg bg-gray-800/50 hover:bg-gray-700/60 border border-transparent hover:border-cyan-500 text-center text-sm font-medium">
-                    <i data-lucide="image-minus" class="w-5 h-5 mx-auto mb-1 text-pink-400"></i>
+                <a href="https://www.remove.bg/upload" target="_blank" class="glass-panel hover-card p-4 rounded-xl text-center text-base font-bold text-slate-200 block hover:text-white group">
+                    <i data-lucide="image-minus" class="w-7 h-7 mx-auto mb-2 text-pink-400 group-hover:text-white transition-colors"></i>
                     Remove.bg
                 </a>
 
-                <!-- 3. וידאו/אנימציה/קול -->
-                <a href="https://www.hedra.com" target="_blank" class="card block p-3 rounded-lg bg-gray-800/50 hover:bg-gray-700/60 border border-transparent hover:border-cyan-500 text-center text-sm font-medium">
-                    <i data-lucide="video" class="w-5 h-5 mx-auto mb-1 text-red-400"></i>
+                <a href="https://www.hedra.com" target="_blank" class="glass-panel hover-card p-4 rounded-xl text-center text-base font-bold text-slate-200 block hover:text-white group">
+                    <i data-lucide="video" class="w-7 h-7 mx-auto mb-2 text-red-400 group-hover:text-white transition-colors"></i>
                     Hedra (3D)
                 </a>
-                <a href="https://klingai.com" target="_blank" class="card block p-3 rounded-lg bg-gray-800/50 hover:bg-gray-700/60 border border-transparent hover:border-cyan-500 text-center text-sm font-medium">
-                    <i data-lucide="clapperboard" class="w-5 h-5 mx-auto mb-1 text-red-400"></i>
+                <a href="https://klingai.com" target="_blank" class="glass-panel hover-card p-4 rounded-xl text-center text-base font-bold text-slate-200 block hover:text-white group">
+                    <i data-lucide="clapperboard" class="w-7 h-7 mx-auto mb-2 text-red-400 group-hover:text-white transition-colors"></i>
                     Kling AI
                 </a>
-                <a href="https://app.runwayml.com" target="_blank" class="card block p-3 rounded-lg bg-gray-800/50 hover:bg-gray-700/60 border border-transparent hover:border-cyan-500 text-center text-sm font-medium">
-                    <i data-lucide="film" class="w-5 h-5 mx-auto mb-1 text-red-400"></i>
+                <a href="https://app.runwayml.com" target="_blank" class="glass-panel hover-card p-4 rounded-xl text-center text-base font-bold text-slate-200 block hover:text-white group">
+                    <i data-lucide="film" class="w-7 h-7 mx-auto mb-2 text-red-400 group-hover:text-white transition-colors"></i>
                     RunwayML
                 </a>
-                <a href="https://app.heygen.com" target="_blank" class="card block p-3 rounded-lg bg-gray-800/50 hover:bg-gray-700/60 border border-transparent hover:border-cyan-500 text-center text-sm font-medium">
-                    <i data-lucide="user-plus" class="w-5 h-5 mx-auto mb-1 text-red-400"></i>
-                    HeyGen (Avatars)
+                <a href="https://app.heygen.com" target="_blank" class="glass-panel hover-card p-4 rounded-xl text-center text-base font-bold text-slate-200 block hover:text-white group">
+                    <i data-lucide="user-plus" class="w-7 h-7 mx-auto mb-2 text-red-400 group-hover:text-white transition-colors"></i>
+                    HeyGen
                 </a>
-                <a href="https://elevenlabs.io" target="_blank" class="card block p-3 rounded-lg bg-gray-800/50 hover:bg-gray-700/60 border border-transparent hover:border-cyan-500 text-center text-sm font-medium">
-                    <i data-lucide="volume-2" class="w-5 h-5 mx-auto mb-1 text-yellow-400"></i>
-                    ElevenLabs (Voice)
+                <a href="https://elevenlabs.io" target="_blank" class="glass-panel hover-card p-4 rounded-xl text-center text-base font-bold text-slate-200 block hover:text-white group">
+                    <i data-lucide="volume-2" class="w-7 h-7 mx-auto mb-2 text-yellow-400 group-hover:text-white transition-colors"></i>
+                    ElevenLabs
                 </a>
-                <a href="https://suno.com/create" target="_blank" class="card block p-3 rounded-lg bg-gray-800/50 hover:bg-gray-700/60 border border-transparent hover:border-cyan-500 text-center text-sm font-medium">
-                    <i data-lucide="music" class="w-5 h-5 mx-auto mb-1 text-yellow-400"></i>
+                <a href="https://suno.com/create" target="_blank" class="glass-panel hover-card p-4 rounded-xl text-center text-base font-bold text-slate-200 block hover:text-white group">
+                    <i data-lucide="music" class="w-7 h-7 mx-auto mb-2 text-yellow-400 group-hover:text-white transition-colors"></i>
                     Suno (Music)
                 </a>
 
-                <!-- 4. פיתוח וקוד -->
-                <a href="https://github.com" target="_blank" class="card block p-3 rounded-lg bg-gray-800/50 hover:bg-gray-700/60 border border-transparent hover:border-cyan-500 text-center text-sm font-medium">
-                    <i data-lucide="github" class="w-5 h-5 mx-auto mb-1 text-orange-400"></i>
+                <a href="https://github.com" target="_blank" class="glass-panel hover-card p-4 rounded-xl text-center text-base font-bold text-slate-200 block hover:text-white group">
+                    <i data-lucide="github" class="w-7 h-7 mx-auto mb-2 text-orange-400 group-hover:text-white transition-colors"></i>
                     GitHub
                 </a>
-                <a href="https://lovable.dev" target="_blank" class="card block p-3 rounded-lg bg-gray-800/50 hover:bg-gray-700/60 border border-transparent hover:border-cyan-500 text-center text-sm font-medium">
-                    <i data-lucide="code" class="w-5 h-5 mx-auto mb-1 text-orange-400"></i>
+                <a href="https://lovable.dev" target="_blank" class="glass-panel hover-card p-4 rounded-xl text-center text-base font-bold text-slate-200 block hover:text-white group">
+                    <i data-lucide="code" class="w-7 h-7 mx-auto mb-2 text-orange-400 group-hover:text-white transition-colors"></i>
                     Lovable.dev
                 </a>
-                <a href="https://vercel.com" target="_blank" class="card block p-3 rounded-lg bg-gray-800/50 hover:bg-gray-700/60 border border-transparent hover:border-cyan-500 text-center text-sm font-medium">
-                    <i data-lucide="cloud" class="w-5 h-5 mx-auto mb-1 text-orange-400"></i>
+                <a href="https://vercel.com" target="_blank" class="glass-panel hover-card p-4 rounded-xl text-center text-base font-bold text-slate-200 block hover:text-white group">
+                    <i data-lucide="cloud" class="w-7 h-7 mx-auto mb-2 text-orange-400 group-hover:text-white transition-colors"></i>
                     Vercel
                 </a>
-                <a href="https://www.openevidence.com" target="_blank" class="card block p-3 rounded-lg bg-gray-800/50 hover:bg-gray-700/60 border border-transparent hover:border-cyan-500 text-center text-sm font-medium">
-                    <i data-lucide="file-text" class="w-5 h-5 mx-auto mb-1 text-orange-400"></i>
+                <a href="https://www.openevidence.com" target="_blank" class="glass-panel hover-card p-4 rounded-xl text-center text-base font-bold text-slate-200 block hover:text-white group">
+                    <i data-lucide="file-text" class="w-7 h-7 mx-auto mb-2 text-orange-400 group-hover:text-white transition-colors"></i>
                     Open Evidence
                 </a>
                 
-                <!-- 5. הוספת Google Flow כאן -->
-                <a href="https://labs.google/flow/about" target="_blank" class="card block p-3 rounded-lg bg-gray-800/50 hover:bg-gray-700/60 border border-transparent hover:border-cyan-500 text-center text-sm font-medium">
-                    <i data-lucide="workflow" class="w-5 h-5 mx-auto mb-1 text-orange-400"></i>
+                <a href="https://labs.google/flow/about" target="_blank" class="glass-panel hover-card p-4 rounded-xl text-center text-base font-bold text-slate-200 block hover:text-white group">
+                    <i data-lucide="workflow" class="w-7 h-7 mx-auto mb-2 text-orange-400 group-hover:text-white transition-colors"></i>
                     Google Flow
                 </a>
             </div>
@@ -844,30 +821,22 @@
 
     </div>
 
-    <!-- פוטר (תחתית הדף) -->
-    <footer class="text-center py-8 border-t border-gray-700/50 text-gray-500">
+    <!-- פוטר -->
+    <footer class="text-center py-8 border-t border-white/10 text-slate-400 mt-12 relative z-10 font-medium">
         <p>&copy; 2025 תפארת אליאב. כל הזכויות שמורות.</p>
     </footer>
 
-    <!-- אתחול אייקונים של Lucide ופונקציית טוגל -->
+    <!-- אתחול אייקונים וסקריפטים -->
     <script>
-        /**
-         * פונקציה לטוגל הצגה/הסתרה של תוכן באמצעות אקורדיון
-         * @param {string} contentId - ה-ID של אלמנט התוכן להסתרה/הצגה
-         * @param {string} iconId - ה-ID של אייקון החץ לסיבוב
-         */
+        // פונקציית טוגל לאקורדיון
         function toggleSection(contentId, iconId) {
             const content = document.getElementById(contentId);
             const icon = document.getElementById(iconId);
 
             if (content && icon) {
-                // בדיקה אם הקטע מוסתר
                 const isHidden = content.classList.contains('hidden');
-                
-                // טוגל (החלפה) של המחלקה 'hidden'
                 content.classList.toggle('hidden');
 
-                // סיבוב האייקון בצורה חלקה
                 if (isHidden) {
                     icon.classList.add('rotate-180');
                     icon.classList.remove('rotate-0');
@@ -878,8 +847,111 @@
             }
         }
 
-        // אתחול אייקונים של Lucide לאחר טעינת הדף
+        // אתחול אייקונים
         lucide.createIcons();
+
+        // אנימציית גלילה (Scroll Reveal)
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+        // --- רשת חלקיקים ב-Canvas ---
+        const canvas = document.getElementById('particles-canvas');
+        const ctx = canvas.getContext('2d');
+        let particlesArray;
+
+        // התאמת גודל קנבס
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', () => {
+            resizeCanvas();
+            initParticles();
+        });
+        resizeCanvas();
+
+        // מחלקת חלקיק
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.directionX = (Math.random() * 0.4) - 0.2;
+                this.directionY = (Math.random() * 0.4) - 0.2;
+                this.size = Math.random() * 2 + 1;
+                this.color = '#a5b4fc'; // צבע תכלת בהיר
+            }
+            // ציור
+            draw() {
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2, false);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+            }
+            // עדכון מיקום
+            update() {
+                if (this.x > canvas.width || this.x < 0) {
+                    this.directionX = -this.directionX;
+                }
+                if (this.y > canvas.height || this.y < 0) {
+                    this.directionY = -this.directionY;
+                }
+                this.x += this.directionX;
+                this.y += this.directionY;
+                this.draw();
+            }
+        }
+
+        // יצירת מערך חלקיקים
+        function initParticles() {
+            particlesArray = [];
+            // כמות חלקיקים תלויה ברוחב המסך
+            let numberOfParticles = (canvas.width * canvas.height) / 15000;
+            for (let i = 0; i < numberOfParticles; i++) {
+                particlesArray.push(new Particle());
+            }
+        }
+
+        // לולאת אנימציה וחיבור קווים
+        function animateParticles() {
+            requestAnimationFrame(animateParticles);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (let i = 0; i < particlesArray.length; i++) {
+                particlesArray[i].update();
+            }
+            connectParticles();
+        }
+
+        // חיבור קווים בין חלקיקים קרובים
+        function connectParticles() {
+            let opacityValue = 1;
+            for (let a = 0; a < particlesArray.length; a++) {
+                for (let b = a; b < particlesArray.length; b++) {
+                    let distance = ((particlesArray[a].x - particlesArray[b].x) * (particlesArray[a].x - particlesArray[b].x))
+                                 + ((particlesArray[a].y - particlesArray[b].y) * (particlesArray[a].y - particlesArray[b].y));
+                    if (distance < (canvas.width/7) * (canvas.height/7)) {
+                        opacityValue = 1 - (distance / 20000);
+                        ctx.strokeStyle = 'rgba(148, 163, 184,' + opacityValue + ')'; // צבע Slate-400
+                        ctx.lineWidth = 1;
+                        ctx.beginPath();
+                        ctx.moveTo(particlesArray[a].x, particlesArray[a].y);
+                        ctx.lineTo(particlesArray[b].x, particlesArray[b].y);
+                        ctx.stroke();
+                    }
+                }
+            }
+        }
+
+        initParticles();
+        animateParticles();
+
     </script>
 </body>
 </html>
