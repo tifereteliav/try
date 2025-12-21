@@ -50,24 +50,21 @@
             box-shadow: var(--glass-shadow);
         }
 
-        /* --- NEW BENTO GRID & HOLOGRAPHIC CARDS --- */
+        /* --- STANDARD GRID (Updated from Bento) & HOLOGRAPHIC CARDS --- */
         
         .bento-grid {
             display: grid;
             grid-template-columns: 1fr;
             gap: 1.5rem;
-            /* Changed from fixed minmax to auto to accommodate content */
-            auto-rows: min-content; 
+            /* Standard Grid Behavior: content dictates height, stack vertically */
+            auto-rows: 1fr; 
         }
 
         @media (min-width: 768px) {
             .bento-grid {
                 grid-template-columns: repeat(3, 1fr);
-                grid-template-rows: repeat(auto-fit, minmax(200px, 1fr));
             }
-            .col-span-2 { grid-column: span 2; }
-            .col-span-3 { grid-column: span 3; }
-            .row-span-2 { grid-row: span 2; }
+            /* Reverted complex spans to ensure equal sizing */
         }
 
         .holo-card {
@@ -82,8 +79,8 @@
             display: flex;
             flex-direction: column;
             isolation: isolate;
-            height: auto; /* Ensure height adapts to content on mobile */
-            min-height: 100%;
+            height: 100%; /* Ensure equal height in grid */
+            min-height: 280px; /* Minimum height for consistency */
         }
 
         .holo-card:hover {
@@ -671,7 +668,7 @@
             <div class="bento-grid">
                 
                 <!-- 1. Travel Guide (Featured - Large) -->
-                <div class="holo-card col-span-2 row-span-2">
+                <div class="holo-card">
                     <div class="card-blob bg-blue-400 w-64 h-64 -top-10 -right-10"></div>
                     <i data-lucide="plane" class="bg-icon w-40 h-40 text-blue-500"></i>
                     
@@ -724,7 +721,7 @@
                 </div>
 
                 <!-- 4. Libre 2 Plus (Featured Wide) -->
-                <div class="holo-card col-span-2">
+                <div class="holo-card">
                     <div class="card-blob bg-green-400 w-56 h-56 top-10 right-1/2 translate-x-1/2"></div>
                     <i data-lucide="zap" class="bg-icon w-32 h-32 text-green-500 right-0"></i>
 
@@ -799,7 +796,7 @@
                 
                 <div class="bento-grid">
                     <!-- DKA Combined Card (Featured) -->
-                    <div class="holo-card col-span-2">
+                    <div class="holo-card">
                         <div class="card-blob bg-red-500 w-64 h-64 -top-10 -left-10 opacity-20"></div>
                         <i data-lucide="siren" class="bg-icon w-40 h-40 text-red-500 right-0 rotate-12"></i>
                         
@@ -913,7 +910,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="holo-card col-span-2">
+                    <div class="holo-card">
                         <div class="card-blob bg-blue-400 w-64 h-64 -bottom-10 -left-10"></div>
                         <div class="holo-content flex-row items-center justify-between">
                              <div>
@@ -959,7 +956,7 @@
 
             <div class="bento-grid">
                 <!-- Conference Card -->
-                <div class="holo-card col-span-2">
+                <div class="holo-card">
                     <div class="card-blob bg-purple-400 w-56 h-56 top-0 right-0"></div>
                     <i data-lucide="calendar" class="bg-icon w-32 h-32 text-purple-500"></i>
                     
@@ -1007,7 +1004,7 @@
                 </div>
 
                 <!-- AI Workshop -->
-                <div class="holo-card col-span-3">
+                <div class="holo-card">
                     <div class="card-blob bg-indigo-400 w-64 h-64 top-10 right-1/2 translate-x-1/2 opacity-20"></div>
                     <i data-lucide="sparkles" class="bg-icon w-32 h-32 text-indigo-500 left-10"></i>
                     
