@@ -56,7 +56,8 @@
             display: grid;
             grid-template-columns: 1fr;
             gap: 1.5rem;
-            auto-rows: minmax(180px, auto);
+            /* Changed from fixed minmax to auto to accommodate content */
+            auto-rows: min-content; 
         }
 
         @media (min-width: 768px) {
@@ -81,6 +82,8 @@
             display: flex;
             flex-direction: column;
             isolation: isolate;
+            height: auto; /* Ensure height adapts to content on mobile */
+            min-height: 100%;
         }
 
         .holo-card:hover {
@@ -190,7 +193,10 @@
             font-weight: 600;
             border-radius: 12px;
             transition: all 0.2s;
-            white-space: nowrap;
+            /* Updated to allow wrapping on small screens */
+            white-space: normal; 
+            text-align: center;
+            line-height: 1.2;
             gap: 0.5rem;
             min-width: 100px;
             cursor: pointer;
@@ -658,7 +664,7 @@
         <div id="content-patients" class="hidden fade-in">
             <div class="mb-8 text-center md:text-right">
                 <h2 class="text-3xl font-black text-slate-900">למטופלים</h2>
-                <p class="text-lg text-slate-500 mt-2">כלים לניהול אורח חיים בריא</p>
+                <p class="text-lg text-slate-500 mt-2">כלים מסייעים לניהול מחלת הסוכרת</p>
             </div>
 
             <!-- Bento Grid Layout -->
@@ -870,7 +876,7 @@
                     <div class="card-blob bg-purple-500 w-96 h-96 -top-20 -right-20 opacity-10"></div>
                     <div class="holo-content flex-row flex-wrap items-center justify-between gap-6">
                         <div>
-                            <h3 class="font-bold text-2xl text-slate-900">קידום הסמכויות</h3>
+                            <h3 class="font-bold text-2xl text-slate-900">הצגת תפקיד האחות המומחית בסוכרת</h3>
                             <p class="text-slate-600 mt-2">אוסף משאבים להצגת חשיבות תפקיד האחות המומחית בקהילה ובבתי החולים.</p>
                         </div>
                         <div class="card-actions">
